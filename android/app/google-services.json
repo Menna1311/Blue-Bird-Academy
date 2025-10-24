@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "169805195189",
+    "project_id": "blue-bird-academy",
+    "storage_bucket": "blue-bird-academy.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:169805195189:android:f814c5e86a7628a5e71bfc",
+        "android_client_info": {
+          "package_name": "com.example.blue_bird"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAEKLDCqgbQjJzX28PVyTfqi-8YdwWai7E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
