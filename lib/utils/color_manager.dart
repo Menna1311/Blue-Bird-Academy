@@ -8,4 +8,5 @@ class ColorManager {
   static const Color white = Color(0xFFFFFFFF);
   static const Color error = Color(0xffe61f34);
   static const Color transparent = Colors.transparent;
+  static const Color grey = Color.fromARGB(255, 216, 216, 216);
 }

@@ -30,4 +30,27 @@ class FirebaseAuthService {
       return Fail(Exception(e.toString()));
     }
   }
+
+  Future<Result<UserModel>> register({
+    required String email,
+    required String password,
+  }) async {
+    try {
+      final userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      final user = userCredential.user;
+      if (user != null) {
+        final model = UserModel(email: user.email, password: password);
+        return Success(model);
+      } else {
+        return Fail(Exception('No user found'));
+      }
+    } on FirebaseAuthException catch (e) {
+      return Fail(Exception(e.message ?? 'Login failed'));
+    } catch (e) {
+      return Fail(Exception(e.toString()));
+    }
+  }
 }

@@ -1,3 +1,4 @@
+import 'package:blue_bird/core/router/app_routes.dart';
 import 'package:blue_bird/features/auth/login/presentation/widgets/login_form.dart';
 import 'package:blue_bird/utils/color_manager.dart';
 import 'package:blue_bird/utils/text_styles.dart';
@@ -22,6 +23,12 @@ class LoginViewBody extends StatelessWidget {
           style: AppTextStyles.font24W500White(context),
         ),
         LoginForm(),
+        TextButton(
+            onPressed: () {
+              Navigator.pushNamed(context, AppRoutes.registerScreen);
+            },
+            child: const Text('Don\'t have an account?',
+                style: TextStyle(color: ColorManager.white))),
       ],
     );
   }

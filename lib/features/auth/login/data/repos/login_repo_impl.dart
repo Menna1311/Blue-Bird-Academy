@@ -18,7 +18,7 @@ class LoginRepoImpl extends LoginRepo {
     final result = await _firebaseAuth.login(email: email, password: password);
 
     if (result is Success<UserModel>) {
-      final entity = (result as Success<UserModel>).data!.toEntity();
+      final entity = (result).data!.toEntity();
       return Success<UserEntity>(entity);
     } else {
       return Fail<UserEntity>((result as Fail<UserModel>).exception!);
