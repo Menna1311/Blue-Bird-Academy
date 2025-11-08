@@ -10,18 +10,20 @@ import 'package:injectable/injectable.dart';
 class RegisterRepoImpl implements RegisterRepo {
   final FirebaseAuthService _firebaseAuth;
   final DatabaseService _databaseService;
+
   RegisterRepoImpl(this._firebaseAuth, this._databaseService);
+
   @override
   Future<Result<UserEntity>> register(String email, String password) async {
     final result =
         await _firebaseAuth.register(email: email, password: password);
 
     if (result is Success<UserModel>) {
-      final entity = (result).data!.toEntity();
+      final entity = result.data!.toEntity();
       await addData(user: entity);
-      return Success<UserEntity>(entity);
+      return Success(entity);
     } else {
-      return Fail<UserEntity>((result as Fail<UserModel>).exception!);
+      return Fail((result as Fail<UserModel>).exception!);
     }
   }
 

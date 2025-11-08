@@ -1,4 +1,6 @@
+import 'package:blue_bird/core/router/app_routes.dart';
 import 'package:blue_bird/core/service/firestore_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:blue_bird/features/home/data/models/team_model.dart';
 import 'package:blue_bird/features/home/presentation/widgets/team_card.dart';
@@ -9,12 +11,12 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final service = FirestoreService();
-    final String trainerId =
-        "qa7f2Us575BLBQAO1I7i"; // ← replace with actual trainer id (FirebaseAuth.currentUser!.uid maybe?)
+    final String trainerId = FirebaseAuth.instance.currentUser!
+        .uid; // ← replace with actual trainer id (FirebaseAuth.currentUser!.uid maybe?)
 
     return Scaffold(
       backgroundColor: const Color(0xffF4F6FA),
-      body: FutureBuilder<List<TeamModel>>(
+      body: FutureBuilder<List<TeamModelHome>>(
         future: service.getTeams(trainerId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -106,6 +108,12 @@ class HomeScreen extends StatelessWidget {
                 ],
               ),
             ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, AppRoutes.addTeamScreen);
+                },
+                child: const Text('اضافة فريق جديد'))
           ],
         ),
       ),

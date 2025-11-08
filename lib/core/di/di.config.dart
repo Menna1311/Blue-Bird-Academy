@@ -11,6 +11,10 @@
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
 
+import '../../features/add_team/data/repos/add_team_repo_impl.dart' as _i129;
+import '../../features/add_team/domain/repos/add_team_repo.dart' as _i749;
+import '../../features/add_team/presentation/cubit/add_team_cubit.dart'
+    as _i326;
 import '../../features/auth/login/data/repos/login_repo_impl.dart' as _i568;
 import '../../features/auth/login/domain/repo/login_repod.dart' as _i253;
 import '../../features/auth/login/presentation/cubit/login_cubit_cubit.dart'
@@ -41,7 +45,7 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i142.SecureStorageService());
     gh.lazySingleton<_i766.FirebaseAuthService>(
         () => _i766.FirebaseAuthService());
-    gh.factory<_i8.DatabaseService>(() => _i908.FirestoreService());
+    gh.lazySingleton<_i8.DatabaseService>(() => _i908.FirestoreService());
     gh.factory<_i253.LoginRepo>(() => _i568.LoginRepoImpl(
           gh<_i766.FirebaseAuthService>(),
           gh<_i142.SecureStorageService>(),
@@ -50,10 +54,14 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i766.FirebaseAuthService>(),
           gh<_i8.DatabaseService>(),
         ));
+    gh.factory<_i749.AddTeamRepo>(
+        () => _i129.AddTeamRepoImpl(gh<_i8.DatabaseService>()));
     gh.factory<_i805.RegisterCubit>(
         () => _i805.RegisterCubit(gh<_i369.RegisterRepo>()));
     gh.factory<_i768.LoginCubitCubit>(
         () => _i768.LoginCubitCubit(gh<_i253.LoginRepo>()));
+    gh.factory<_i326.AddTeamCubit>(
+        () => _i326.AddTeamCubit(gh<_i749.AddTeamRepo>()));
     return this;
   }
 }

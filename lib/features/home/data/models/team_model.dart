@@ -1,13 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class TeamModel {
+class TeamModelHome {
   final String id;
   final String teamName;
   final int teamAge;
   final int numberOfPlayers;
   final DateTime? nextSessionDate;
 
-  TeamModel({
+  TeamModelHome({
     required this.id,
     required this.teamName,
     required this.teamAge,
@@ -15,8 +15,8 @@ class TeamModel {
     this.nextSessionDate,
   });
 
-  factory TeamModel.fromFirestore(Map<String, dynamic> data, String id) {
-    return TeamModel(
+  factory TeamModelHome.fromFirestore(Map<String, dynamic> data, String id) {
+    return TeamModelHome(
       id: id,
       teamName: data['name'] ?? '',
       teamAge: data['age'] ?? '',

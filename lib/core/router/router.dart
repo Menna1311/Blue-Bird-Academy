@@ -1,5 +1,6 @@
 import 'package:blue_bird/core/router/app_routes.dart';
 import 'package:blue_bird/core/router/route_not_found.dart';
+import 'package:blue_bird/features/add_team/presentation/views/add_team_view.dart';
 import 'package:blue_bird/features/auth/login/presentation/views/login_view.dart';
 import 'package:blue_bird/features/auth/register/presentation/views/register_view.dart';
 import 'package:blue_bird/features/home/presentation/views/home_view.dart';
@@ -14,6 +15,10 @@ Route manageRoutes(RouteSettings settings) {
     case AppRoutes.homeScreen:
       return MaterialPageRoute(
         builder: (context) => HomeScreen(),
+      );
+    case AppRoutes.addTeamScreen:
+      return MaterialPageRoute(
+        builder: (context) => AddTeamView(),
       );
     case AppRoutes.registerScreen:
       return MaterialPageRoute(builder: (context) => RegisterView());
