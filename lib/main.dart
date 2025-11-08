@@ -3,6 +3,7 @@ import 'package:blue_bird/core/di/di.dart';
 import 'package:blue_bird/core/providers/user_provider.dart';
 import 'package:blue_bird/core/router/app_routes.dart';
 import 'package:blue_bird/core/router/router.dart';
+import 'package:blue_bird/features/add_team/presentation/provider/add_team_form_provider.dart';
 import 'package:blue_bird/firebase_options.dart';
 import 'package:blue_bird/utils/color_manager.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -24,9 +25,13 @@ Future<void> main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-  runApp(ChangeNotifierProvider(
-      create: (BuildContext context) {
-        return UserProvider();
+  runApp(MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => UserProvider()),
+        ChangeNotifierProvider(create: (_) => AddTeamFormProvider()),
+      ],
+      builder: (context, child) {
+        return child!;
       },
       child: const MyApp()));
 }
