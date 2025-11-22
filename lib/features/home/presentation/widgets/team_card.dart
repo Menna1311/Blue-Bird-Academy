@@ -1,4 +1,5 @@
 import 'package:blue_bird/core/router/app_routes.dart';
+import 'package:blue_bird/features/add_team/domain/entities/player_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -11,6 +12,7 @@ class TeamCard extends StatelessWidget {
     required this.date,
     required this.teamId,
     required this.trainerId,
+    required this.players,
   });
 
   final String teamName;
@@ -19,6 +21,7 @@ class TeamCard extends StatelessWidget {
   final DateTime date;
   final String teamId;
   final String trainerId;
+  final List<PlayerEntity> players;
   @override
   Widget build(BuildContext context) {
     final formattedDate =
@@ -26,8 +29,11 @@ class TeamCard extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
-        Navigator.pushNamed(context, AppRoutes.sessionScreen,
-            arguments: {'trainerId': trainerId, 'teamId': teamId});
+        Navigator.pushNamed(context, AppRoutes.sessionScreen, arguments: {
+          'trainerId': trainerId,
+          'teamId': teamId,
+          'players': players
+        });
       },
       child: Container(
         padding: const EdgeInsets.all(16),

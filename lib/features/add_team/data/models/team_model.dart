@@ -35,6 +35,7 @@ class TeamModel {
           (map['trainingTime'] as Timestamp?)?.toDate() ?? DateTime.now(),
       players: (map['players'] as List<dynamic>? ?? [])
           .map((p) => PlayerEntity(
+                id: p['id'] ?? '',
                 name: p['name'] ?? '',
                 jerseyNumber: p['jerseyNumber'] ?? '',
               ))
@@ -43,7 +44,7 @@ class TeamModel {
     );
   }
 
-  /// 🔹 to Firestore map
+  /// 🔹 to Firestore map with optional player IDs generation
   Map<String, dynamic> toMap() {
     return {
       'trainerId': trainerId,

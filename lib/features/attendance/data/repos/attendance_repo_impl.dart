@@ -1,5 +1,6 @@
 import 'package:blue_bird/core/common/result.dart';
 import 'package:blue_bird/core/service/database_service.dart';
+import 'package:blue_bird/features/attendance/data/models/attendance_history_model.dart';
 import 'package:blue_bird/features/attendance/data/models/attendance_model.dart';
 import 'package:blue_bird/features/attendance/domain/repos/attendance_repo.dart';
 import 'package:injectable/injectable.dart';
@@ -13,5 +14,11 @@ class AttendanceRepoImpl implements AttendanceRepo {
       String sessionId, List<AttendanceModel> attendanceList) {
     return _firestoreService.markAttendance(
         trainerId, teamId, sessionId, attendanceList);
+  }
+
+  @override
+  Future<Result<List<AttendanceHistoryModel>>> getAttendanceHistory(
+      String trainerId, String teamId) async {
+    return _firestoreService.getAttendanceHistory(trainerId, teamId);
   }
 }

@@ -45,7 +45,7 @@ class HomeScreen extends StatelessWidget {
                           numberOfPlayers: team.players.length,
                           date: team.trainingTime,
                           teamId: team.id,
-                          trainerId: trainerId,
+                          trainerId: trainerId, players: team.players,
                           // players: team.players,
                         ),
                       );

@@ -1,3 +1,4 @@
+import 'package:blue_bird/features/add_team/domain/entities/player_entity.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class SessionEntity {
@@ -6,8 +7,7 @@ class SessionEntity {
   final String date;
   final Timestamp time;
   final String status;
-  final List<Map<String, dynamic>>?
-      players; // Convert to List<Map<String, dynamic>>
+  final List<dynamic>? players; // Convert to List<Map<String, dynamic>>
   SessionEntity({
     required this.id,
     required this.day,

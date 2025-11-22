@@ -1,6 +1,8 @@
 import 'package:blue_bird/core/common/result.dart';
 import 'package:blue_bird/core/service/database_service.dart';
 import 'package:blue_bird/features/add_team/data/models/team_model.dart';
+import 'package:blue_bird/features/add_team/domain/entities/player_entity.dart';
+import 'package:blue_bird/features/attendance/data/models/attendance_history_model.dart';
 import 'package:blue_bird/features/attendance/data/models/attendance_model.dart';
 import 'package:blue_bird/features/home/data/models/session_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -51,23 +53,26 @@ class FirestoreService implements DatabaseService {
   @override
   Future<Result<bool>> addTeam(String trainerId, TeamModel team) async {
     try {
-      final teamRef = firestore
+      final teamRef = FirebaseFirestore.instance
           .collection('trainers')
           .doc(trainerId)
           .collection('teams')
           .doc();
 
+      // Save team without player IDs
       await teamRef.set({
         ...team.toMap(),
         'id': teamRef.id,
         'createdAt': FieldValue.serverTimestamp(),
       });
 
+      // Generate sessions with player IDs
       await _generateTeamSessions(
         trainerId: trainerId,
         teamId: teamRef.id,
         trainingDays: team.trainingDays,
         trainingTime: team.trainingTime,
+        players: team.players,
       );
 
       return Success(true);
@@ -83,9 +88,10 @@ class FirestoreService implements DatabaseService {
     required String teamId,
     required List<String> trainingDays,
     required DateTime trainingTime,
+    required List<PlayerEntity> players,
   }) async {
     final now = DateTime.now();
-    final sessionsCollection = firestore
+    final sessionsCollection = FirebaseFirestore.instance
         .collection('trainers')
         .doc(trainerId)
         .collection('teams')
@@ -100,6 +106,17 @@ class FirestoreService implements DatabaseService {
         'date': "${nextDate.year}-${nextDate.month}-${nextDate.day}",
         'time': trainingTime,
         'status': "upcoming",
+        'players': players
+            .map((p) => {
+                  'id': FirebaseFirestore.instance
+                      .collection('dummy')
+                      .doc()
+                      .id, // unique ID per session
+                  'name': p.name,
+                  'jerseyNumber': p.jerseyNumber,
+                  'attendance': false, // default attendance
+                })
+            .toList(),
         'createdAt': FieldValue.serverTimestamp(),
       };
 
@@ -107,22 +124,21 @@ class FirestoreService implements DatabaseService {
     }
   }
 
-  DateTime _getNextDateForDay(String dayName, DateTime fromDate) {
-    final weekdays = {
-      "Monday": DateTime.monday,
-      "Tuesday": DateTime.tuesday,
-      "Wednesday": DateTime.wednesday,
-      "Thursday": DateTime.thursday,
-      "Friday": DateTime.friday,
-      "Saturday": DateTime.saturday,
-      "Sunday": DateTime.sunday,
+  /// Helper: get next date for a weekday
+  DateTime _getNextDateForDay(String weekday, DateTime fromDate) {
+    const weekdaysMap = {
+      'Monday': 1,
+      'Tuesday': 2,
+      'Wednesday': 3,
+      'Thursday': 4,
+      'Friday': 5,
+      'Saturday': 6,
+      'Sunday': 7,
     };
-
-    final targetWeekday = weekdays[dayName] ?? DateTime.monday;
-    int daysToAdd = (targetWeekday - fromDate.weekday) % 7;
-    if (daysToAdd <= 0) daysToAdd += 7;
-
-    return fromDate.add(Duration(days: daysToAdd));
+    int targetWeekday = weekdaysMap[weekday] ?? 1;
+    int daysAhead = (targetWeekday - fromDate.weekday + 7) % 7;
+    if (daysAhead == 0) daysAhead = 7;
+    return fromDate.add(Duration(days: daysAhead));
   }
 
   @override
@@ -202,15 +218,38 @@ class FirestoreService implements DatabaseService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getPlayers(
+  @override
+  Future<Result<List<AttendanceHistoryModel>>> getAttendanceHistory(
       String trainerId, String teamId) async {
-    final snapshot = await firestore
-        .collection('trainers')
-        .doc(trainerId)
-        .collection('teams')
-        .doc(teamId)
-        .collection('players')
-        .get();
-    return snapshot.docs.map((doc) => doc.data()).toList();
+    {
+      final sessions = await firestore
+          .collection('trainers')
+          .doc(trainerId)
+          .collection('teams')
+          .doc(teamId)
+          .collection('sessions')
+          .get();
+
+      List<AttendanceHistoryModel> history = [];
+
+      for (var s in sessions.docs) {
+        final sessionId = s.id;
+        final date = s['date']; // تاريخ الجلسة
+
+        final attendanceSnap = await s.reference.collection('attendance').get();
+
+        for (var a in attendanceSnap.docs) {
+          history.add(
+            AttendanceHistoryModel(
+              sessionDate: date,
+              playerName: a['playerName'],
+              status: a['status'],
+            ),
+          );
+        }
+      }
+
+      return Success(history);
+    }
   }
 }

@@ -15,7 +15,21 @@ final class AttendanceError extends AttendanceState {
 }
 
 final class AttendancePlayersLoaded extends AttendanceState {
-  final List<AttendanceModel> players;
+  final List<PlayerEntity> players;
 
   AttendancePlayersLoaded(this.players);
+}
+
+class AttendanceHistoryInitial extends AttendanceState {}
+
+class AttendanceHistoryLoading extends AttendanceState {}
+
+class AttendanceHistoryLoaded extends AttendanceState {
+  final List<AttendanceHistoryModel> history;
+  AttendanceHistoryLoaded(this.history);
+}
+
+class AttendanceHistoryError extends AttendanceState {
+  final String message;
+  AttendanceHistoryError(this.message);
 }

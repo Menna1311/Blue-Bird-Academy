@@ -33,7 +33,7 @@ Route manageRoutes(RouteSettings settings) {
       return MaterialPageRoute(
         builder: (context) {
           return SessionsView(
-            arguments: settings.arguments as Map<String, String>?,
+            arguments: settings.arguments as Map<String, dynamic>?,
           );
         },
       );
