@@ -1,8 +1,8 @@
 import 'package:blue_bird/core/router/app_routes.dart';
 import 'package:blue_bird/core/service/firestore_service.dart';
+import 'package:blue_bird/features/add_team/data/models/team_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:blue_bird/features/home/data/models/team_model.dart';
 import 'package:blue_bird/features/home/presentation/widgets/team_card.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -11,12 +11,11 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final service = FirestoreService();
-    final String trainerId = FirebaseAuth.instance.currentUser!
-        .uid; // ← replace with actual trainer id (FirebaseAuth.currentUser!.uid maybe?)
+    final String trainerId = FirebaseAuth.instance.currentUser!.uid;
 
     return Scaffold(
       backgroundColor: const Color(0xffF4F6FA),
-      body: FutureBuilder<List<TeamModelHome>>(
+      body: FutureBuilder<List<TeamModel>>(
         future: service.getTeams(trainerId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -33,10 +32,7 @@ class HomeScreen extends StatelessWidget {
             child: Column(
               children: [
                 _buildHeader(context, teams.length),
-
                 const SizedBox(height: 20),
-
-                // 🏆 Teams list from Firestore
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Column(
@@ -45,9 +41,12 @@ class HomeScreen extends StatelessWidget {
                         padding: const EdgeInsets.only(bottom: 12),
                         child: TeamCard(
                           teamName: team.teamName,
-                          teamAge: team.teamAge,
-                          numberOfPlayers: team.numberOfPlayers,
-                          date: team.nextSessionDate ?? DateTime.now(),
+                          teamAge: team.teamAgeCategory,
+                          numberOfPlayers: team.players.length,
+                          date: team.trainingTime,
+                          teamId: team.id,
+                          trainerId: trainerId, players: team.players,
+                          // players: team.players,
                         ),
                       );
                     }).toList(),

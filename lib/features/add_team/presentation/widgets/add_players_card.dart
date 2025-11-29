@@ -23,7 +23,9 @@ class _AddPlayersCardState extends State<AddPlayersCard> {
       if (nameController.text.isEmpty || numberController.text.isEmpty) return;
       final newPlayers = List<PlayerEntity>.from(players)
         ..add(PlayerEntity(
-            name: nameController.text, jerseyNumber: numberController.text));
+            name: nameController.text,
+            jerseyNumber: numberController.text,
+            id: ''));
       provider.setPlayers(newPlayers);
       nameController.clear();
       numberController.clear();
