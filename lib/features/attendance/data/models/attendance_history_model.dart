@@ -1,10 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class AttendanceHistoryModel {
-  final String sessionDate;
+  final Timestamp takenAt;
   final String playerName;
   final String status;
 
   AttendanceHistoryModel({
-    required this.sessionDate,
+    required this.takenAt,
     required this.playerName,
     required this.status,
   });

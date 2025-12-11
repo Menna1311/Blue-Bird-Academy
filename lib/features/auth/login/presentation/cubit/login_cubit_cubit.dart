@@ -9,16 +9,41 @@ part 'login_cubit_state.dart';
 
 @injectable
 class LoginCubitCubit extends Cubit<LoginCubitState> {
-  LoginCubitCubit(this.loginRepo) : super(LoginCubitInitial());
-  final LoginRepo loginRepo;
+  LoginCubitCubit(this._loginRepo) : super(LoginCubitInitial());
+  final LoginRepo _loginRepo;
+  Future<void> checkUserToken() async {
+    emit(LoginCubitLoading()); // show loading animation
+    final result = await _loginRepo.checkUserToken();
+    switch (result) {
+      case Success<bool>():
+        if (result.data == true) {
+          emit(TokenChecked()); // token exists → navigate
+        } else {
+          emit(NoToken()); // no token → show login
+        }
+      case Fail<bool>():
+        emit(LoginCubitError(result.exception!.toString()));
+        break;
+    }
+  }
 
   Future<void> login(String email, String password) async {
     emit(LoginCubitLoading());
-    final result = await loginRepo.login(email, password);
+    await Future.delayed(const Duration(seconds: 2));
+    final result = await _loginRepo.login(email, password);
     switch (result) {
       case Success<UserEntity>():
-        emit(LoginCubitSuccess(result.data!));
+        final user = result.data!;
+        emit(LoginCubitSuccess(user));
+        final userToken = await _loginRepo.setUserToken(user.id);
+        if (userToken is Success<bool>) {
+          if (userToken.data == true) {
+            print('Token: ${userToken.data}'); // token exists → navigate
+          }
+        }
+
         break;
+
       case Fail<UserEntity>():
         emit(LoginCubitError(result.exception!.toString()));
         break;

@@ -16,3 +16,7 @@ final class LoginCubitSuccess extends LoginCubitState {
   final UserEntity user;
   LoginCubitSuccess(this.user);
 }
+
+final class TokenChecked extends LoginCubitState {}
+
+final class NoToken extends LoginCubitState {}

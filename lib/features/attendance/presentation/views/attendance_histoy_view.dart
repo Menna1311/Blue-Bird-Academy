@@ -1,5 +1,6 @@
 import 'package:blue_bird/features/attendance/data/models/attendance_history_model.dart';
 import 'package:blue_bird/features/attendance/presentation/cubit/attendance_cubit.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -20,7 +21,7 @@ class AttendanceHistoryScreen extends StatelessWidget {
       create: (_) => GetIt.I<AttendanceCubit>()..getHistory(trainerId, teamId),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("سجل الحضور الشهري"),
+          title: const Text("سجل الحضور"),
           centerTitle: true,
         ),
         body: BlocBuilder<AttendanceCubit, AttendanceState>(
@@ -33,22 +34,21 @@ class AttendanceHistoryScreen extends StatelessWidget {
               final history = state.history;
 
               if (history.isEmpty) {
-                return const Center(
-                  child: Text("لا يوجد سجل حضور لهذا الشهر"),
-                );
+                return const Center(child: Text("لا يوجد سجل حضور"));
               }
 
-              // Group by sessionDate
-              final Map<String, List<AttendanceHistoryModel>> grouped = {};
+              // Group by takenAt
+              final Map<Timestamp, List<AttendanceHistoryModel>> grouped = {};
               for (var record in history) {
-                grouped.putIfAbsent(record.sessionDate, () => []).add(record);
+                grouped.putIfAbsent(record.takenAt, () => []).add(record);
               }
 
-              final sessionDates = grouped.keys.toList()..sort();
+              final dates = grouped.keys.toList()
+                ..sort((a, b) => b.compareTo(a)); // newest first
 
               return ListView(
                 padding: const EdgeInsets.all(12),
-                children: sessionDates
+                children: dates
                     .map((date) => SessionAttendanceCard(
                           sessionDate: date,
                           players: grouped[date]!,
@@ -58,9 +58,7 @@ class AttendanceHistoryScreen extends StatelessWidget {
             }
 
             if (state is AttendanceHistoryError) {
-              return Center(
-                child: Text("خطأ: ${state.message}"),
-              );
+              return Center(child: Text("خطأ: ${state.message}"));
             }
 
             return const SizedBox();
@@ -72,7 +70,7 @@ class AttendanceHistoryScreen extends StatelessWidget {
 }
 
 class SessionAttendanceCard extends StatefulWidget {
-  final String sessionDate;
+  final Timestamp sessionDate;
   final List<AttendanceHistoryModel> players;
 
   const SessionAttendanceCard({
@@ -88,6 +86,11 @@ class SessionAttendanceCard extends StatefulWidget {
 class _SessionCardState extends State<SessionAttendanceCard> {
   bool isExpanded = false;
 
+  String formatTimestamp(Timestamp t) {
+    final d = t.toDate();
+    return "${d.year}-${d.month}-${d.day}  ${d.hour}:${d.minute}";
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -96,17 +99,13 @@ class _SessionCardState extends State<SessionAttendanceCard> {
         children: [
           ListTile(
             title: Text(
-              "الجلسة: ${widget.sessionDate}",
+              "تم تسجيل الحضور في: ${formatTimestamp(widget.sessionDate)}",
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             trailing: Icon(isExpanded
                 ? Icons.keyboard_arrow_up
                 : Icons.keyboard_arrow_down),
-            onTap: () {
-              setState(() {
-                isExpanded = !isExpanded;
-              });
-            },
+            onTap: () => setState(() => isExpanded = !isExpanded),
           ),
           if (isExpanded)
             Column(
