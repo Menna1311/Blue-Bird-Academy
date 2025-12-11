@@ -1,11 +1,10 @@
-import 'package:blue_bird/features/add_team/domain/entities/player_entity.dart';
 import 'package:blue_bird/features/home/domain/entities/session_entity.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class SessionModel {
   final String id;
   final String day;
-  final String date;
+  final Timestamp date;
   final Timestamp time;
   final String status;
   final List<dynamic> players; // Add players field>

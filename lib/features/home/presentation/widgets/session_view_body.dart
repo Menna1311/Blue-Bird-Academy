@@ -49,7 +49,7 @@ class SessionViewBody extends StatelessWidget {
                     return SessionCard(
                       dayName: session.day,
                       date: session.date,
-                      time: session.time.toDate().toString().split(' ')[1],
+                      time: session.time,
                       status: statusText,
                       isUpcoming: isUpcoming,
                       onPressed: () {

@@ -1,9 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class SessionCard extends StatelessWidget {
   final String dayName;
-  final String date;
-  final String time;
+  final Timestamp date;
+  final Timestamp time;
   final String status;
   final bool isUpcoming;
   final VoidCallback onPressed;
@@ -75,7 +76,7 @@ class SessionCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        '$dayName، $date',
+                        dayName,
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -83,7 +84,7 @@ class SessionCard extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        time,
+                        '${time.toDate().hour}:${time.toDate().minute}',
                         style: const TextStyle(
                           fontSize: 13,
                           color: Colors.grey,

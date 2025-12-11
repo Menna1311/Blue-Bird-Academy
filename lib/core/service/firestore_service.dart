@@ -103,7 +103,7 @@ class FirestoreService implements DatabaseService {
 
       final sessionData = {
         'day': day,
-        'date': "${nextDate.year}-${nextDate.month}-${nextDate.day}",
+        'date': Timestamp.fromDate(nextDate),
         'time': trainingTime,
         'status': "upcoming",
         'players': players
@@ -124,7 +124,6 @@ class FirestoreService implements DatabaseService {
     }
   }
 
-  /// Helper: get next date for a weekday
   DateTime _getNextDateForDay(String weekday, DateTime fromDate) {
     const weekdaysMap = {
       'Monday': 1,
@@ -142,25 +141,30 @@ class FirestoreService implements DatabaseService {
   }
 
   @override
-  Future<Result<bool>> markAttendance(String trainerId, String teamId,
-      String sessionId, List<AttendanceModel> attendanceList) async {
-    {
-      final attendanceCollection = firestore
-          .collection('trainers')
-          .doc(trainerId)
-          .collection('teams')
-          .doc(teamId)
-          .collection('sessions')
-          .doc(sessionId)
-          .collection('attendance');
+  Future<Result<bool>> markAttendance(
+    String trainerId,
+    String teamId,
+    String sessionId,
+    List<AttendanceModel> attendanceList,
+  ) async {
+    final attendanceCollection = firestore
+        .collection('trainers')
+        .doc(trainerId)
+        .collection('teams')
+        .doc(teamId)
+        .collection('sessions')
+        .doc(sessionId)
+        .collection('attendance_records');
 
-      for (final attendance in attendanceList) {
-        await attendanceCollection.doc(attendance.playerId).set({
-          ...attendance.toMap(),
-          'updatedAt': FieldValue.serverTimestamp(),
-        });
-      }
-    }
+    final playersMap = {
+      for (var a in attendanceList) a.playerId: a.toMap(),
+    };
+
+    await attendanceCollection.add({
+      'players': playersMap,
+      'takenAt': FieldValue.serverTimestamp(),
+    });
+
     return Success(true);
   }
 
@@ -220,8 +224,10 @@ class FirestoreService implements DatabaseService {
 
   @override
   Future<Result<List<AttendanceHistoryModel>>> getAttendanceHistory(
-      String trainerId, String teamId) async {
-    {
+    String trainerId,
+    String teamId,
+  ) async {
+    try {
       final sessions = await firestore
           .collection('trainers')
           .doc(trainerId)
@@ -232,24 +238,31 @@ class FirestoreService implements DatabaseService {
 
       List<AttendanceHistoryModel> history = [];
 
-      for (var s in sessions.docs) {
-        final sessionId = s.id;
-        final date = s['date']; // تاريخ الجلسة
+      for (var session in sessions.docs) {
+        final recordsSnap = await session.reference
+            .collection('attendance_records')
+            .orderBy('takenAt', descending: true)
+            .get();
 
-        final attendanceSnap = await s.reference.collection('attendance').get();
+        for (var record in recordsSnap.docs) {
+          final takenAt = record['takenAt'] as Timestamp;
+          final playersMap = record['players'] as Map<String, dynamic>;
 
-        for (var a in attendanceSnap.docs) {
-          history.add(
-            AttendanceHistoryModel(
-              sessionDate: date,
-              playerName: a['playerName'],
-              status: a['status'],
-            ),
-          );
+          playersMap.forEach((_, playerData) {
+            history.add(
+              AttendanceHistoryModel(
+                takenAt: takenAt,
+                playerName: playerData['playerName'],
+                status: playerData['status'],
+              ),
+            );
+          });
         }
       }
 
       return Success(history);
+    } catch (e) {
+      return Fail(Exception(e.toString()));
     }
   }
 }

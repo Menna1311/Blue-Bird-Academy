@@ -19,7 +19,8 @@ class FirebaseAuthService {
 
       final user = userCredential.user;
       if (user != null) {
-        final model = UserModel(email: user.email, password: password);
+        final model =
+            UserModel(id: user.uid, email: user.email, password: password);
         return Success(model);
       } else {
         return Fail(Exception('No user found'));
@@ -42,7 +43,8 @@ class FirebaseAuthService {
       );
       final user = userCredential.user;
       if (user != null) {
-        final model = UserModel(email: user.email, password: password);
+        final model =
+            UserModel(id: user.uid, email: user.email, password: password);
         return Success(model);
       } else {
         return Fail(Exception('No user found'));

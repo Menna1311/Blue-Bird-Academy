@@ -4,6 +4,7 @@ import 'package:blue_bird/features/add_team/data/models/team_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:blue_bird/features/home/presentation/widgets/team_card.dart';
+import 'package:lottie/lottie.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -13,17 +14,28 @@ class HomeScreen extends StatelessWidget {
     final service = FirestoreService();
     final String trainerId = FirebaseAuth.instance.currentUser!.uid;
 
+    // 🔥 Make loading last for minimum 2 seconds
+    final future = Future.delayed(
+      const Duration(seconds: 2),
+      () => service.getTeams(trainerId),
+    );
+
     return Scaffold(
       backgroundColor: const Color(0xffF4F6FA),
       body: FutureBuilder<List<TeamModel>>(
-        future: service.getTeams(trainerId),
+        future: future,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return Center(
+              child: Lottie.asset(
+                'assets/lotti/Footballer_loading.json',
+                width: 180,
+              ),
+            );
           }
 
           if (snapshot.hasError) {
-            return Center(child: Text('حدث خطأ أثناء تحميل البيانات'));
+            return const Center(child: Text('حدث خطأ أثناء تحميل البيانات'));
           }
 
           final teams = snapshot.data ?? [];
@@ -45,8 +57,8 @@ class HomeScreen extends StatelessWidget {
                           numberOfPlayers: team.players.length,
                           date: team.trainingTime,
                           teamId: team.id,
-                          trainerId: trainerId, players: team.players,
-                          // players: team.players,
+                          trainerId: trainerId,
+                          players: team.players,
                         ),
                       );
                     }).toList(),
@@ -109,10 +121,11 @@ class HomeScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, AppRoutes.addTeamScreen);
-                },
-                child: const Text('اضافة فريق جديد'))
+              onPressed: () {
+                Navigator.pushNamed(context, AppRoutes.addTeamScreen);
+              },
+              child: const Text('اضافة فريق جديد'),
+            )
           ],
         ),
       ),

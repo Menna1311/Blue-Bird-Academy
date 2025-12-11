@@ -29,4 +29,21 @@ class LoginRepoImpl extends LoginRepo {
   Future<Result<bool>> setUserToken(String token) {
     return executeSecureStorage(() => _secureStorageService.setToken(token));
   }
+
+  @override
+  Future<Result<bool>> checkUserToken() async {
+    final result =
+        await executeSecureStorage(() => _secureStorageService.getToken());
+
+    if (result is Success<String?>) {
+      final token = result.data;
+      if (token != null && token.isNotEmpty) {
+        return Success(true);
+      } else {
+        return Success(false);
+      }
+    } else {
+      return Success(false); // treat errors as no token
+    }
+  }
 }
