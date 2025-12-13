@@ -5,7 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class CustomTextField extends StatefulWidget {
   final String hint;
   final Function(String)? onChange;
-  final TextEditingController controller;
+  final TextEditingController? controller;
   final bool obscureText;
   final bool? readOnly;
   final String? Function(String?)? validator;
@@ -18,7 +18,7 @@ class CustomTextField extends StatefulWidget {
     this.onChange,
     this.obscureText = false,
     this.validator,
-    required this.controller,
+    this.controller,
     this.errorText,
     this.readOnly,
     this.prefixIcon,
@@ -63,7 +63,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
           ),
           prefixIcon: Icon(widget.prefixIcon, color: ColorManager.white),
           hintText: widget.hint,
-          hintStyle: const TextStyle(color: ColorManager.white),
+          hintStyle: const TextStyle(color: ColorManager.halfTransparentWhite),
         ),
       ),
     );

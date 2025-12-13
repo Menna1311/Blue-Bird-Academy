@@ -1,6 +1,7 @@
 import 'package:blue_bird/core/router/app_routes.dart';
 import 'package:blue_bird/features/auth/login/presentation/widgets/login_form.dart';
 import 'package:blue_bird/utils/color_manager.dart';
+import 'package:blue_bird/utils/strings_manager.dart';
 import 'package:blue_bird/utils/text_styles.dart';
 import 'package:flutter/material.dart';
 
@@ -13,22 +14,13 @@ class LoginViewBody extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Icon(
-          Icons.shield_outlined,
-          color: ColorManager.white,
-          size: 100,
-        ),
-        Text(
-          'Blue Bird Academy',
-          style: AppTextStyles.font24W500White(context),
-        ),
         LoginForm(),
         TextButton(
             onPressed: () {
               Navigator.pushNamed(context, AppRoutes.registerScreen);
             },
-            child: const Text('Don\'t have an account?',
-                style: TextStyle(color: ColorManager.white))),
+            child: Text(StringsManager.registerNow,
+                style: AppTextStyles.font18W400White(context))),
       ],
     );
   }

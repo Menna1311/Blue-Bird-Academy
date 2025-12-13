@@ -43,7 +43,7 @@ class LoginRepoImpl extends LoginRepo {
         return Success(false);
       }
     } else {
-      return Success(false); // treat errors as no token
+      return Success(false);
     }
   }
 }

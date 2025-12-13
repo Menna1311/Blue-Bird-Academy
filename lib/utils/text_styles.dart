@@ -120,4 +120,20 @@ class AppTextStyles {
       ),
     );
   }
+
+  static TextStyle font18W400primary(
+    BuildContext context, {
+    Color? color = ColorManager.primary,
+    double? fontSize,
+    FontWeight fontWeight = FontWeight.w400,
+  }) {
+    final size = _getResponsiveFontSize(context, fontSize ?? AppSize.s18);
+    return GoogleFonts.balooThambi2(
+      textStyle: TextStyle(
+        color: color,
+        fontSize: size,
+        fontWeight: fontWeight,
+      ),
+    );
+  }
 }
