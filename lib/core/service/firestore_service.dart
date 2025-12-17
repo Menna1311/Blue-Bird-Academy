@@ -37,17 +37,18 @@ class FirestoreService implements DatabaseService {
   }
 
   @override
-  Future<List<TeamModel>> getTeams(String trainerId) async {
+  Future<Result<List<TeamModel>>> getTeams(String trainerId) async {
     final snapshot = await firestore
         .collection('trainers')
         .doc(trainerId)
         .collection('teams')
         .get();
 
-    return snapshot.docs
-        .map((doc) =>
-            TeamModel.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+    final teams = snapshot.docs
+        .map((doc) => TeamModel.fromMap(doc.data(), doc.id))
         .toList();
+
+    return Success(teams);
   }
 
   @override

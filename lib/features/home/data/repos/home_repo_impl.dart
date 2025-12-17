@@ -1,5 +1,7 @@
 import 'package:blue_bird/core/common/result.dart';
 import 'package:blue_bird/core/service/database_service.dart';
+import 'package:blue_bird/features/add_team/data/models/team_model.dart';
+import 'package:blue_bird/features/add_team/domain/entities/team_entity.dart';
 import 'package:blue_bird/features/home/data/models/session_model.dart';
 import 'package:blue_bird/features/home/domain/entities/session_entity.dart';
 import 'package:blue_bird/features/home/domain/repos/home_repo.dart';
@@ -49,6 +51,27 @@ class HomeRepoImpl implements HomeRepo {
       }
 
       return Fail<List<SessionEntity>>(Exception('Unknown error'));
+    });
+  }
+
+  @override
+  Future<Result<List<TeamEntity>>> getTeams(String trainerId) {
+    return _firestoreService.getTeams(trainerId).then((result) {
+      if (result is Success<List<TeamModel>>) {
+        final List<TeamModel> models = result.data ?? [];
+
+        final List<TeamEntity> entities =
+            models.map((model) => model.toEntity()).toList();
+
+        return Success<List<TeamEntity>>(entities);
+      }
+
+      if (result is Fail) {
+        final error = (result as Fail).exception;
+        return Fail<List<TeamEntity>>(error);
+      }
+
+      return Fail<List<TeamEntity>>(Exception('Unknown error'));
     });
   }
 }

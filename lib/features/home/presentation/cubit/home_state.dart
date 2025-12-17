@@ -24,3 +24,17 @@ final class SessionsLoaded extends HomeState {
 
   SessionsLoaded(this.sessions);
 }
+
+final class TeamsLoading extends HomeState {}
+
+final class TeamsLoaded extends HomeState {
+  final List<TeamEntity> teams;
+
+  TeamsLoaded(this.teams);
+}
+
+final class TeamsError extends HomeState {
+  final Exception exception;
+
+  TeamsError(this.exception);
+}

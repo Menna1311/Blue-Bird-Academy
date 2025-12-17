@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:blue_bird/core/common/result.dart';
+import 'package:blue_bird/features/add_team/domain/entities/team_entity.dart';
 import 'package:blue_bird/features/home/domain/entities/session_entity.dart';
 import 'package:blue_bird/features/home/domain/repos/home_repo.dart';
 import 'package:injectable/injectable.dart';
@@ -35,6 +36,18 @@ class HomeCubit extends Cubit<HomeState> {
       emit(SessionsLoaded(result.data!));
     } else if (result is Fail<List<SessionEntity>>) {
       emit(SessionError(result.exception!));
+    }
+  }
+
+  Future<void> getTeams(String trainerId) async {
+    emit(TeamsLoading());
+
+    final result = await _homeRepo.getTeams(trainerId);
+
+    if (result is Success<List<TeamEntity>>) {
+      emit(TeamsLoaded(result.data!));
+    } else if (result is Fail<List<TeamEntity>>) {
+      emit(TeamsError(result.exception!));
     }
   }
 }

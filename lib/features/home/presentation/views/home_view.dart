@@ -1,9 +1,11 @@
+import 'package:blue_bird/core/di/di.dart';
 import 'package:blue_bird/core/router/app_routes.dart';
-import 'package:blue_bird/core/service/firestore_service.dart';
-import 'package:blue_bird/features/add_team/data/models/team_model.dart';
+import 'package:blue_bird/features/add_team/domain/entities/team_entity.dart';
+import 'package:blue_bird/features/home/presentation/cubit/home_cubit.dart';
+import 'package:blue_bird/features/home/presentation/widgets/team_card.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:blue_bird/features/home/presentation/widgets/team_card.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -11,21 +13,25 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final service = FirestoreService();
-    final String trainerId = FirebaseAuth.instance.currentUser!.uid;
+    final trainerId = FirebaseAuth.instance.currentUser!.uid;
 
-    // 🔥 Make loading last for minimum 2 seconds
-    final future = Future.delayed(
-      const Duration(seconds: 2),
-      () => service.getTeams(trainerId),
+    return BlocProvider<HomeCubit>(
+      create: (_) => getIt<HomeCubit>()..getTeams(trainerId),
+      child: const _HomeView(),
     );
+  }
+}
 
+class _HomeView extends StatelessWidget {
+  const _HomeView();
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xffF4F6FA),
-      body: FutureBuilder<List<TeamModel>>(
-        future: future,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
+      body: BlocBuilder<HomeCubit, HomeState>(
+        builder: (context, state) {
+          if (state is TeamsLoading) {
             return Center(
               child: Lottie.asset(
                 'assets/lotti/Footballer_loading.json',
@@ -34,39 +40,46 @@ class HomeScreen extends StatelessWidget {
             );
           }
 
-          if (snapshot.hasError) {
-            return const Center(child: Text('حدث خطأ أثناء تحميل البيانات'));
+          if (state is TeamsError) {
+            return const Center(
+              child: Text('حدث خطأ أثناء تحميل الفرق'),
+            );
           }
 
-          final teams = snapshot.data ?? [];
+          if (state is TeamsLoaded) {
+            final List<TeamEntity> teams = state.teams;
+            final trainerId = FirebaseAuth.instance.currentUser!.uid;
 
-          return SingleChildScrollView(
-            child: Column(
-              children: [
-                _buildHeader(context, teams.length),
-                const SizedBox(height: 20),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Column(
-                    children: teams.map((team) {
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: TeamCard(
-                          teamName: team.teamName,
-                          teamAge: team.teamAgeCategory,
-                          numberOfPlayers: team.players.length,
-                          date: team.trainingTime,
-                          teamId: team.id,
-                          trainerId: trainerId,
-                          players: team.players,
-                        ),
-                      );
-                    }).toList(),
+            return SingleChildScrollView(
+              child: Column(
+                children: [
+                  _buildHeader(context, teams.length),
+                  const SizedBox(height: 20),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Column(
+                      children: teams.map((team) {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: TeamCard(
+                            teamName: team.teamName,
+                            teamAge: team.teamAgeCategory,
+                            numberOfPlayers: team.players.length,
+                            date: team.trainingTime,
+                            teamId: team.id,
+                            trainerId: trainerId,
+                            players: team.players,
+                          ),
+                        );
+                      }).toList(),
+                    ),
                   ),
-                ),
-              ],
-            ),
-          );
+                ],
+              ),
+            );
+          }
+
+          return const SizedBox();
         },
       ),
     );
@@ -115,7 +128,10 @@ class HomeScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   const _StatItem(title: 'إجمالي اللاعبين', value: '—'),
-                  _StatItem(title: 'الفرق', value: teamsCount.toString()),
+                  _StatItem(
+                    title: 'الفرق',
+                    value: teamsCount.toString(),
+                  ),
                 ],
               ),
             ),
