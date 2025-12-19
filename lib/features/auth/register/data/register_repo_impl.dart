@@ -1,7 +1,7 @@
 import 'package:blue_bird/core/common/result.dart';
+import 'package:blue_bird/core/service/auth_service.dart';
 import 'package:blue_bird/core/service/database_service.dart';
 import 'package:blue_bird/core/service/execute_secure_storage.dart';
-import 'package:blue_bird/core/service/firebase_auth_service.dart';
 import 'package:blue_bird/core/service/secure_storage_service.dart';
 import 'package:blue_bird/features/auth/login/data/models/user_model.dart';
 import 'package:blue_bird/features/auth/login/domain/entities/user_entity.dart';
@@ -10,16 +10,17 @@ import 'package:injectable/injectable.dart';
 
 @Injectable(as: RegisterRepo)
 class RegisterRepoImpl implements RegisterRepo {
-  final FirebaseAuthService _firebaseAuth;
+  final AuthService _firebaseAuth;
   final DatabaseService _databaseService;
   final SecureStorageService _secureStorageService;
   RegisterRepoImpl(
       this._firebaseAuth, this._databaseService, this._secureStorageService);
 
   @override
-  Future<Result<UserEntity>> register(String email, String password) async {
-    final result =
-        await _firebaseAuth.register(email: email, password: password);
+  Future<Result<UserEntity>> register(
+      String email, String password, String displayName) async {
+    final result = await _firebaseAuth.register(
+        email: email, password: password, displayName: displayName);
 
     if (result is Success<UserModel>) {
       final entity = result.data!.toEntity();

@@ -21,7 +21,8 @@ class SessionViewBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cubit = getIt<HomeCubit>();
-    cubit.getSessions(trainerId, teamId); // fetch sessions on build
+    // Pass both trainerId and teamId
+    cubit.getSessions(trainerId, teamId);
 
     return BlocBuilder<HomeCubit, HomeState>(
       bloc: cubit,
@@ -36,8 +37,7 @@ class SessionViewBody extends StatelessWidget {
 
           return Column(
             children: [
-              Container(
-                height: 600,
+              Expanded(
                 child: ListView.builder(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   itemCount: sessions.length,
@@ -53,10 +53,11 @@ class SessionViewBody extends StatelessWidget {
                       status: statusText,
                       isUpcoming: isUpcoming,
                       onPressed: () {
+                        // Pass all three parameters: trainerId, teamId, sessionId
                         cubit.getSession(trainerId, teamId, session.id);
                         Navigator.pushNamed(
                           context,
-                          AppRoutes.attendanceScreen, // your route
+                          AppRoutes.attendanceScreen,
                           arguments: {
                             'trainerId': trainerId,
                             'teamId': teamId,
@@ -69,21 +70,41 @@ class SessionViewBody extends StatelessWidget {
                   },
                 ),
               ),
-              ElevatedButton(
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16.0),
+                child: ElevatedButton(
                   onPressed: () {
                     Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => AttendanceHistoryScreen(
-                                  trainerId: trainerId,
-                                  teamId: teamId,
-                                )));
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => AttendanceHistoryScreen(
+                          trainerId: trainerId,
+                          teamId: teamId,
+                        ),
+                      ),
+                    );
                   },
-                  child: const Text("السجل")),
+                  child: const Text("السجل"),
+                ),
+              ),
             ],
           );
         } else if (state is SessionError) {
-          return Center(child: Text(state.exception.toString()));
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text("حدث خطأ أثناء تحميل الجلسات"),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () {
+                    cubit.getSessions(trainerId, teamId);
+                  },
+                  child: const Text("إعادة المحاولة"),
+                ),
+              ],
+            ),
+          );
         }
 
         return const SizedBox();

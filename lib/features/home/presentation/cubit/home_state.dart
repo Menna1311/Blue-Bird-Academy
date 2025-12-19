@@ -5,6 +5,18 @@ sealed class HomeState {}
 
 final class HomeInitial extends HomeState {}
 
+final class UserLoading extends HomeState {}
+
+final class UserLoaded extends HomeState {
+  final UserEntity user;
+  UserLoaded(this.user);
+}
+
+final class UserError extends HomeState {
+  final Exception exception;
+  UserError(this.exception);
+}
+
 final class SessionLoaded extends HomeState {
   final SessionEntity sessions;
 

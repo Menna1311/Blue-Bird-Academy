@@ -111,6 +111,10 @@ class RegisterViewBody extends StatelessWidget {
                 obscureText: true,
                 onChange: cubit.updatePassword,
               ),
+              const SizedBox(height: 12),
+              CustomTextField(
+                  hint: StringsManager.coachName,
+                  onChange: cubit.updateUsername),
               const SizedBox(height: 20),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(

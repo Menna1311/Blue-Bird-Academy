@@ -19,4 +19,10 @@ class StringsManager {
   static const String coachPassword = "********";
   static const String registerNow = "Don't have an account? Register Now!";
   static const String loginNow = "Already have an account? Login Now!";
+  static const String coachName = "coach name";
+  static const String addTeam = "Add Team";
+  static const String teams = "Teams";
+  static const String totalPlayers = "Total Players";
+  static const String tryAgain = "Try again";
+  static const String somethingWentWrong = "Something went wrong";
 }

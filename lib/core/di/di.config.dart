@@ -32,6 +32,7 @@ import '../../features/home/data/repos/home_repo_impl.dart' as _i647;
 import '../../features/home/domain/repos/home_repo.dart' as _i130;
 import '../../features/home/presentation/cubit/home_cubit.dart' as _i9;
 import '../providers/user_provider.dart' as _i26;
+import '../service/auth_service.dart' as _i850;
 import '../service/database_service.dart' as _i8;
 import '../service/firebase_auth_service.dart' as _i766;
 import '../service/firestore_service.dart' as _i908;
@@ -51,33 +52,34 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i26.UserProvider>(() => _i26.UserProvider());
     gh.singleton<_i142.SecureStorageService>(
         () => _i142.SecureStorageService());
-    gh.lazySingleton<_i766.FirebaseAuthService>(
-        () => _i766.FirebaseAuthService());
     gh.lazySingleton<_i8.DatabaseService>(() => _i908.FirestoreService());
     gh.factory<_i550.AttendanceRepo>(
         () => _i530.AttendanceRepoImpl(gh<_i8.DatabaseService>()));
-    gh.factory<_i253.LoginRepo>(() => _i568.LoginRepoImpl(
-          gh<_i766.FirebaseAuthService>(),
-          gh<_i142.SecureStorageService>(),
-        ));
-    gh.factory<_i369.RegisterRepo>(() => _i759.RegisterRepoImpl(
-          gh<_i766.FirebaseAuthService>(),
-          gh<_i8.DatabaseService>(),
-          gh<_i142.SecureStorageService>(),
-        ));
+    gh.lazySingleton<_i850.AuthService>(() => _i766.FirebaseAuthService());
     gh.factory<_i518.AttendanceCubit>(
         () => _i518.AttendanceCubit(gh<_i550.AttendanceRepo>()));
-    gh.factory<_i805.RegisterCubit>(
-        () => _i805.RegisterCubit(gh<_i369.RegisterRepo>()));
-    gh.factory<_i130.HomeRepo>(
-        () => _i647.HomeRepoImpl(gh<_i8.DatabaseService>()));
-    gh.factory<_i9.HomeCubit>(() => _i9.HomeCubit(gh<_i130.HomeRepo>()));
+    gh.factory<_i253.LoginRepo>(() => _i568.LoginRepoImpl(
+          gh<_i850.AuthService>(),
+          gh<_i142.SecureStorageService>(),
+        ));
     gh.factory<_i768.LoginCubitCubit>(
         () => _i768.LoginCubitCubit(gh<_i253.LoginRepo>()));
     gh.factory<_i749.AddTeamRepo>(
         () => _i129.AddTeamRepoImpl(gh<_i8.DatabaseService>()));
+    gh.factory<_i369.RegisterRepo>(() => _i759.RegisterRepoImpl(
+          gh<_i850.AuthService>(),
+          gh<_i8.DatabaseService>(),
+          gh<_i142.SecureStorageService>(),
+        ));
     gh.factory<_i326.AddTeamCubit>(
         () => _i326.AddTeamCubit(gh<_i749.AddTeamRepo>()));
+    gh.factory<_i130.HomeRepo>(() => _i647.HomeRepoImpl(
+          gh<_i8.DatabaseService>(),
+          gh<_i850.AuthService>(),
+        ));
+    gh.factory<_i805.RegisterCubit>(
+        () => _i805.RegisterCubit(gh<_i369.RegisterRepo>()));
+    gh.factory<_i9.HomeCubit>(() => _i9.HomeCubit(gh<_i130.HomeRepo>()));
     return this;
   }
 }

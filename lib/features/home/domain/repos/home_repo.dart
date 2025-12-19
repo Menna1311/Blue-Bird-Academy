@@ -1,5 +1,6 @@
 import 'package:blue_bird/core/common/result.dart';
 import 'package:blue_bird/features/add_team/domain/entities/team_entity.dart';
+import 'package:blue_bird/features/auth/login/domain/entities/user_entity.dart';
 import 'package:blue_bird/features/home/domain/entities/session_entity.dart';
 
 abstract class HomeRepo {
@@ -8,4 +9,5 @@ abstract class HomeRepo {
   Future<Result<List<SessionEntity>>> getSessions(
       String trainerId, String teamId);
   Future<Result<List<TeamEntity>>> getTeams(String trainerId);
+  Future<Result<UserEntity>> getLoggedInUser();
 }
