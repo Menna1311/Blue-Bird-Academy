@@ -1,4 +1,5 @@
 import 'package:blue_bird/features/add_team/presentation/provider/add_team_form_provider.dart';
+import 'package:blue_bird/utils/strings_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -10,23 +11,14 @@ class AgeCategoryDropdown extends StatelessWidget {
     final provider = Provider.of<AddTeamFormProvider>(context);
     return DropdownButtonFormField<String>(
       value: provider.ageCategory,
-      items: [
-        'تحت 6 سنوات',
-        'تحت 8 سنوات',
-        'تحت 10 سنوات',
-        'تحت 12 سنة',
-        'تحت 14 سنة',
-        'تحت 16 سنة',
-        'تحت 18 سنة',
-      ]
+      items: StringsManager.ageCategories
           .map(
-            (e) => DropdownMenuItem(
-                value: e, child: Text(e, textAlign: TextAlign.right)),
+            (e) => DropdownMenuItem(value: e, child: Text(e)),
           )
           .toList(),
       onChanged: (value) => provider.setAgeCategory(value),
       decoration: InputDecoration(
-        hintText: 'اختر الفئة العمرية',
+        hintText: StringsManager.selectAgeCategory,
         filled: true,
         fillColor: const Color(0xffF8F9FD),
         contentPadding:

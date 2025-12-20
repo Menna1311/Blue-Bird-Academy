@@ -25,4 +25,49 @@ class StringsManager {
   static const String totalPlayers = "Total Players";
   static const String tryAgain = "Try again";
   static const String somethingWentWrong = "Something went wrong";
+
+  // Sessions strings
+  static const String sessions = "Sessions";
+  static const String noSessionsYet = "No sessions yet";
+  static const String history = "History";
+  static const String errorLoadingSessions =
+      "An error occurred while loading sessions";
+  static const String retry = "Retry";
+  static const String missingParameters = "Missing parameters";
+  static const String teamAddedSuccessfully = 'Team added successfully!';
+  static const String pleaseCompleteAllFields = 'Please complete all fields';
+  static const String teamName = 'Team Name';
+  static const String ageCategory = 'Age Category';
+  static const String trainingDays = 'Training Days';
+  static const String trainingTime = 'Training Time';
+  static const String selectTrainingTime = 'Select Training Time';
+  static const String addPlayers = 'Add Players';
+  static const String addNewTeam = 'Add New Team';
+  static const String selectAgeCategory = 'Select Age Category';
+  static const String playerName = 'Player Name';
+  static const String jerseyNumber = 'Jersey Number';
+  static const String add = 'Add';
+  static const String addPlayersTitle = 'Add Players';
+
+  // Age categories
+  static const List<String> ageCategories = [
+    'Under 6 years',
+    'Under 8 years',
+    'Under 10 years',
+    'Under 12 years',
+    'Under 14 years',
+    'Under 16 years',
+    'Under 18 years',
+  ];
+
+  // Training days
+  static const List<String> trainingDaysList = [
+    'Saturday',
+    'Sunday',
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+  ];
 }

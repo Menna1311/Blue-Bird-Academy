@@ -1,7 +1,7 @@
 import 'package:blue_bird/core/router/app_routes.dart';
 import 'package:blue_bird/features/add_team/domain/entities/player_entity.dart';
+import 'package:blue_bird/utils/color_manager.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 class TeamCard extends StatelessWidget {
   const TeamCard({
@@ -9,7 +9,7 @@ class TeamCard extends StatelessWidget {
     required this.teamName,
     required this.teamAge,
     required this.numberOfPlayers,
-    required this.date,
+    required this.trainingDays,
     required this.teamId,
     required this.trainerId,
     required this.players,
@@ -18,14 +18,13 @@ class TeamCard extends StatelessWidget {
   final String teamName;
   final String teamAge;
   final int numberOfPlayers;
-  final DateTime date;
+  final List<String> trainingDays;
   final String teamId;
   final String trainerId;
   final List<PlayerEntity> players;
   @override
   Widget build(BuildContext context) {
-    final formattedDate =
-        DateFormat('EEEE، d MMMM • HH:mm').format(date); // Arabic format
+    final formattedDays = trainingDays.join(', ');
 
     return GestureDetector(
       onTap: () {
@@ -63,7 +62,7 @@ class TeamCard extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    '$teamAge سنة',
+                    '$teamAge years',
                     style: const TextStyle(
                       color: Colors.black,
                       fontSize: 14,
@@ -76,7 +75,7 @@ class TeamCard extends StatelessWidget {
                           size: 16, color: Colors.grey),
                       const SizedBox(width: 4),
                       Text(
-                        formattedDate,
+                        formattedDays,
                         style:
                             const TextStyle(color: Colors.grey, fontSize: 13),
                       ),
@@ -89,9 +88,9 @@ class TeamCard extends StatelessWidget {
             // Player count
             Column(
               children: [
-                const Icon(Icons.group, color: Color(0xff0048FF)),
+                const Icon(Icons.group, color: ColorManager.primary),
                 Text(
-                  '$numberOfPlayers لاعب',
+                  '$numberOfPlayers players',
                   style: const TextStyle(fontSize: 13, color: Colors.black54),
                 ),
               ],

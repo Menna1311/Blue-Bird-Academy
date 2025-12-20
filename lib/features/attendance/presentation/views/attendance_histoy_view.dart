@@ -44,7 +44,7 @@ class AttendanceHistoryScreen extends StatelessWidget {
               }
 
               final dates = grouped.keys.toList()
-                ..sort((a, b) => b.compareTo(a)); // newest first
+                ..sort((a, b) => b.compareTo(a));
 
               return ListView(
                 padding: const EdgeInsets.all(12),

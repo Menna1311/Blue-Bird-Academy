@@ -1,5 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:blue_bird/utils/color_manager.dart';
+import 'package:blue_bird/utils/text_styles.dart';
+import 'package:blue_bird/utils/values_manager.dart';
 
 class SessionCard extends StatelessWidget {
   final String dayName;
@@ -21,73 +25,87 @@ class SessionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final timeFormatted = DateFormat('HH:mm').format(time.toDate());
+    // final dateFormatted = DateFormat('d MMMM').format(date.toDate());
+
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-      padding: const EdgeInsets.all(12),
+      margin: const EdgeInsets.symmetric(
+          vertical: AppMargin.m8, horizontal: AppMargin.m16),
+      padding: const EdgeInsets.all(AppPadding.p16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppSize.s16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black12,
-            blurRadius: 6,
-            offset: const Offset(0, 3),
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: AppSize.s8,
+            offset: const Offset(0, AppSize.s4),
           ),
         ],
+        border: Border.all(
+          color: isUpcoming
+              ? ColorManager.primary.withOpacity(0.2)
+              : Colors.grey.withOpacity(0.2),
+          width: AppSize.s1,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          /// Top row: status badge + date/time
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // Status chip
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: AppPadding.p12, vertical: AppPadding.p8),
                 decoration: BoxDecoration(
-                  color: status == "قادمة"
-                      ? Colors.blue.withOpacity(0.1)
+                  color: isUpcoming
+                      ? ColorManager.primary.withOpacity(0.1)
                       : Colors.grey.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(AppSize.s20),
+                  border: Border.all(
+                    color: isUpcoming ? ColorManager.primary : Colors.grey,
+                    width: AppSize.s1,
+                  ),
                 ),
                 child: Text(
                   status,
                   style: TextStyle(
-                    color:
-                        status == "قادمة" ? Colors.blue : Colors.grey.shade600,
+                    color: isUpcoming
+                        ? ColorManager.primary
+                        : Colors.grey.shade700,
                     fontWeight: FontWeight.w600,
-                    fontSize: 13,
+                    fontSize: AppSize.s14,
                   ),
                 ),
               ),
-
-              // Date & Time with icon
               Row(
                 children: [
                   Icon(
-                    Icons.calendar_today_rounded,
-                    color: Colors.blue,
-                    size: 20,
+                    Icons.access_time_rounded,
+                    color: ColorManager.primary,
+                    size: AppSize.s20,
                   ),
-                  const SizedBox(width: 6),
+                  const SizedBox(width: AppSize.s8),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
                         dayName,
-                        style: const TextStyle(
-                          fontSize: 14,
+                        style: AppTextStyles.font14W800White(
+                          context,
+                          color: ColorManager.black,
+                          fontSize: AppSize.s14,
                           fontWeight: FontWeight.w600,
-                          color: Colors.black87,
                         ),
                       ),
                       Text(
-                        '${time.toDate().hour}:${time.toDate().minute}',
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: Colors.grey,
+                        timeFormatted,
+                        style: AppTextStyles.font14W800White(
+                          context,
+                          color: Colors.grey.shade600,
+                          fontSize: AppSize.s12,
+                          fontWeight: FontWeight.w400,
                         ),
                       ),
                     ],
@@ -97,28 +115,55 @@ class SessionCard extends StatelessWidget {
             ],
           ),
 
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSize.s12),
 
-          /// Button
+          // Date row
+          // Row(
+          //   children: [
+          //     Icon(
+          //       Icons.calendar_today_rounded,
+          //       color: ColorManager.primary,
+          //       size: AppSize.s18,
+          //     ),
+          //     const SizedBox(width: AppSize.s8),
+          //     Text(
+          //       dateFormatted,
+          //       style: AppTextStyles.font14W800White(
+          //         context,
+          //         color: Colors.grey.shade700,
+          //         fontSize: AppSize.s14,
+          //         fontWeight: FontWeight.w500,
+          //       ),
+          //     ),
+          //   ],
+          // ),
+
+          const SizedBox(height: AppSize.s16),
+
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
               onPressed: onPressed,
               style: ElevatedButton.styleFrom(
                 backgroundColor:
-                    isUpcoming ? Colors.blue : Colors.grey.shade700,
-                padding:
-                    const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                    isUpcoming ? ColorManager.primary : Colors.grey.shade700,
+                padding: const EdgeInsets.symmetric(
+                    vertical: AppPadding.p14, horizontal: AppPadding.p20),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(AppSize.s12),
                 ),
+                elevation: AppSize.s2,
+                shadowColor: isUpcoming
+                    ? ColorManager.primary.withOpacity(0.3)
+                    : Colors.grey,
               ),
               child: Text(
-                isUpcoming ? "تسجيل الحضور" : "عرض الحضور",
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 15,
+                isUpcoming ? "Mark Attendance" : "View Attendance History",
+                style: AppTextStyles.font18W400White(
+                  context,
+                  color: ColorManager.white,
+                  fontSize: AppSize.s16,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),

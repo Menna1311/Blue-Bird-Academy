@@ -5,6 +5,7 @@ import 'package:blue_bird/features/auth/login/domain/entities/user_entity.dart';
 import 'package:blue_bird/features/home/presentation/cubit/home_cubit.dart';
 import 'package:blue_bird/features/home/presentation/widgets/team_card.dart';
 import 'package:blue_bird/utils/assets_manager.dart';
+import 'package:blue_bird/utils/color_manager.dart';
 import 'package:blue_bird/utils/strings_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -126,7 +127,7 @@ class _HomeView extends StatelessWidget {
                     teamName: team.teamName,
                     teamAge: team.teamAgeCategory,
                     numberOfPlayers: team.players.length,
-                    date: team.trainingTime,
+                    trainingDays: team.trainingDays,
                     teamId: team.id,
                     trainerId: user.id,
                     players: team.players,
@@ -145,7 +146,7 @@ class _HomeView extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
       decoration: const BoxDecoration(
-        color: Color(0xff0048FF),
+        color: ColorManager.primary,
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(40),
           bottomRight: Radius.circular(40),
@@ -194,7 +195,8 @@ class _HomeView extends StatelessWidget {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                Navigator.pushNamed(context, AppRoutes.addTeamScreen);
+                Navigator.pushNamed(context, AppRoutes.addTeamScreen,
+                    arguments: {'trainerId': user.id});
               },
               child: const Text(StringsManager.addTeam),
             )

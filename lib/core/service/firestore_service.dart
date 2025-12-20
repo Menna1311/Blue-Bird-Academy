@@ -157,12 +157,10 @@ class FirestoreService implements DatabaseService {
         .doc(sessionId)
         .collection('attendance_records');
 
-    final playersMap = {
-      for (var a in attendanceList) a.playerId: a.toMap(),
-    };
+    final attendanceData = attendanceList.map((a) => a.toMap()).toList();
 
     await attendanceCollection.add({
-      'players': playersMap,
+      'players': attendanceData,
       'takenAt': FieldValue.serverTimestamp(),
     });
 
@@ -247,9 +245,9 @@ class FirestoreService implements DatabaseService {
 
         for (var record in recordsSnap.docs) {
           final takenAt = record['takenAt'] as Timestamp;
-          final playersMap = record['players'] as Map<String, dynamic>;
+          final playersList = record['players'] as List<dynamic>;
 
-          playersMap.forEach((_, playerData) {
+          for (var playerData in playersList) {
             history.add(
               AttendanceHistoryModel(
                 takenAt: takenAt,
@@ -257,7 +255,7 @@ class FirestoreService implements DatabaseService {
                 status: playerData['status'],
               ),
             );
-          });
+          }
         }
       }
 

@@ -5,14 +5,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AddTeamView extends StatelessWidget {
-  AddTeamView({super.key});
-  final cubit = getIt<AddTeamCubit>();
+  const AddTeamView({super.key, this.arguments});
+  final Map<String, dynamic>? arguments;
   @override
   Widget build(BuildContext context) {
+    final trainerId = arguments?['trainerId'];
+    final cubit = getIt<AddTeamCubit>();
     return Scaffold(
       body: BlocProvider(
         create: (context) => cubit,
-        child: const AddTeamViewBody(),
+        child: AddTeamViewBody(trainerId: trainerId),
       ),
     );
   }

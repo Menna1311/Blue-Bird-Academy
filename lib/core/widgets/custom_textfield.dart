@@ -11,6 +11,7 @@ class CustomTextField extends StatefulWidget {
   final String? Function(String?)? validator;
   final String? errorText;
   final IconData? prefixIcon;
+  final Color? textColor;
 
   const CustomTextField({
     super.key,
@@ -22,6 +23,7 @@ class CustomTextField extends StatefulWidget {
     this.errorText,
     this.readOnly,
     this.prefixIcon,
+    this.textColor,
   });
 
   @override
@@ -48,7 +50,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
         readOnly: widget.readOnly ?? false,
         onChanged: widget.onChange,
         controller: widget.controller,
-        style: const TextStyle(color: ColorManager.white),
+        style: TextStyle(color: widget.textColor ?? ColorManager.white),
         decoration: InputDecoration(
           errorText: widget.errorText,
           filled: true,
@@ -63,7 +65,8 @@ class _CustomTextFieldState extends State<CustomTextField> {
           ),
           prefixIcon: Icon(widget.prefixIcon, color: ColorManager.white),
           hintText: widget.hint,
-          hintStyle: const TextStyle(color: ColorManager.halfTransparentWhite),
+          hintStyle: TextStyle(
+              color: (widget.textColor ?? ColorManager.white).withOpacity(0.5)),
         ),
       ),
     );

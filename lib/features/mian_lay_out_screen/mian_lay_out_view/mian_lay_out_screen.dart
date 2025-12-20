@@ -49,7 +49,8 @@ class _MainLayoutBody extends StatelessWidget {
         return true;
       },
       child: Scaffold(
-        extendBody: true,
+        extendBody:
+            false, // Changed from true to false to prevent body from extending behind the navigation bar
         // 🔥 FIXED — pass context
         body: viewModel.currentScreen(context),
         bottomNavigationBar: const _MainBottomNavigationBar(),
