@@ -7,6 +7,19 @@ import 'package:blue_bird/utils/values_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:provider/provider.dart';
+
+class AttendanceUiState extends ChangeNotifier {
+  List<String?> selectedStatus;
+
+  AttendanceUiState(int playerCount)
+      : selectedStatus = List.generate(playerCount, (_) => null);
+
+  void updateStatus(int index, String status) {
+    selectedStatus[index] = status;
+    notifyListeners();
+  }
+}
 
 class AttendanceScreen extends StatelessWidget {
   final Map<String, dynamic>? arguments;
@@ -30,8 +43,15 @@ class AttendanceScreen extends StatelessWidget {
       );
     }
 
-    return BlocProvider(
-      create: (_) => GetIt.I<AttendanceCubit>(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) => AttendanceUiState(players.length),
+        ),
+        BlocProvider(
+          create: (_) => GetIt.I<AttendanceCubit>(),
+        ),
+      ],
       child: Scaffold(
         body: AttendanceViewBody(
           trainerId: trainerId,
@@ -44,7 +64,7 @@ class AttendanceScreen extends StatelessWidget {
   }
 }
 
-class AttendanceViewBody extends StatefulWidget {
+class AttendanceViewBody extends StatelessWidget {
   final String trainerId;
   final String teamId;
   final String sessionId;
@@ -57,22 +77,6 @@ class AttendanceViewBody extends StatefulWidget {
     required this.sessionId,
     required this.players,
   });
-
-  @override
-  State<AttendanceViewBody> createState() => _AttendanceViewBodyState();
-}
-
-class _AttendanceViewBodyState extends State<AttendanceViewBody> {
-  final Map<String, String> selectedStatus = {}; // playerId -> status
-
-  @override
-  void initState() {
-    super.initState();
-    // Initialize default attendance as "present" for all players
-    for (final player in widget.players) {
-      selectedStatus[player.id] = 'present';
-    }
-  }
 
   Widget _buildHeader(BuildContext context) {
     return Container(
@@ -111,6 +115,7 @@ class _AttendanceViewBodyState extends State<AttendanceViewBody> {
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<AttendanceCubit>();
+    final uiState = context.watch<AttendanceUiState>();
 
     return BlocConsumer<AttendanceCubit, AttendanceState>(
       listener: (context, state) {
@@ -138,19 +143,16 @@ class _AttendanceViewBodyState extends State<AttendanceViewBody> {
                         padding: const EdgeInsets.symmetric(
                           vertical: AppPadding.p8,
                         ),
-                        itemCount: widget.players.length,
+                        itemCount: players.length,
                         itemBuilder: (context, index) {
-                          final player = widget.players[index];
-                          final id = player.id;
+                          final player = players[index];
 
                           return PlayerAttendanceCard(
                             playerName: player.name,
                             jerseyNumber: player.jerseyNumber,
-                            selectedStatus: selectedStatus[id] ?? 'present',
+                            selectedStatus: uiState.selectedStatus[index] ?? '',
                             onStatusChanged: (status) {
-                              setState(() {
-                                selectedStatus[id] = status;
-                              });
+                              uiState.updateStatus(index, status);
                             },
                           );
                         },
@@ -178,19 +180,21 @@ class _AttendanceViewBodyState extends State<AttendanceViewBody> {
                             : ElevatedButton(
                                 onPressed: () {
                                   final attendanceList =
-                                      widget.players.map((player) {
+                                      players.asMap().entries.map((entry) {
+                                    final index = entry.key;
+                                    final player = entry.value;
                                     return AttendanceModel(
                                       playerId: player.id,
                                       playerName: player.name,
-                                      status: selectedStatus[player.id] ??
-                                          'present',
+                                      status: uiState.selectedStatus[index] ??
+                                          'غائب',
                                     );
                                   }).toList();
 
                                   cubit.markAttendance(
-                                    widget.trainerId,
-                                    widget.teamId,
-                                    widget.sessionId,
+                                    trainerId,
+                                    teamId,
+                                    sessionId,
                                     attendanceList,
                                   );
                                 },

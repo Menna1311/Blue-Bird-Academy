@@ -1,6 +1,5 @@
 import 'package:blue_bird/utils/color_manager.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CustomTextField extends StatefulWidget {
   final String hint;
@@ -42,7 +41,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 45.h,
+      height: 45,
       child: TextFormField(
         keyboardAppearance: Brightness.dark,
         obscureText: _obscureText,

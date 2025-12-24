@@ -1,6 +1,7 @@
 class ImageAssets {
   static const String imagePath = "assets/";
-  static const String logo = "${imagePath}png/blue_bird_logo.png";
+  static const String logo =
+      "${imagePath}png/240525910_424419026061646_229108903850936637_n-removebg-preview.png";
   static const String onBoarding1 = "${imagePath}png/onBoarding1.png";
   static const String onBoarding2 = "${imagePath}png/onBoarding2.png";
   static const String onBoarding3 = "${imagePath}png/onBoarding3.png";

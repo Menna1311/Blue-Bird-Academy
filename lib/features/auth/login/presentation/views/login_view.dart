@@ -1,6 +1,7 @@
 // login_view.dart
 
 import 'package:blue_bird/core/di/di.dart';
+import 'package:blue_bird/core/responsive_helper/size_helper_extensions.dart';
 import 'package:blue_bird/core/router/app_routes.dart';
 import 'package:blue_bird/features/auth/login/presentation/cubit/login_cubit_cubit.dart';
 import 'package:blue_bird/features/auth/login/presentation/widgets/login_view_body.dart';
@@ -42,12 +43,21 @@ class LoginBlocConsumer extends StatelessWidget {
         } else if (state is LoginCubitSuccess) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-                content: Text('${StringsManager.welcome} ${state.user.email}')),
+              content: Text(
+                '${StringsManager.welcome} ${state.user.email}',
+                style: TextStyle(fontSize: context.setSp(14)),
+              ),
+            ),
           );
           Navigator.pushReplacementNamed(context, AppRoutes.mainLayout);
         } else if (state is LoginCubitError) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.message)),
+            SnackBar(
+              content: Text(
+                state.message,
+                style: TextStyle(fontSize: context.setSp(14)),
+              ),
+            ),
           );
         }
       },
@@ -59,12 +69,15 @@ class LoginBlocConsumer extends StatelessWidget {
               children: [
                 Lottie.asset(
                   LottieAssets.loading,
-                  width: 200,
+                  width: context.setWidth(200),
                 ),
-                const SizedBox(height: 16),
-                const Text(
+                SizedBox(height: context.setHeight(16)),
+                Text(
                   StringsManager.loading,
-                  style: TextStyle(color: Colors.white),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: context.setSp(16),
+                  ),
                 ),
               ],
             ),

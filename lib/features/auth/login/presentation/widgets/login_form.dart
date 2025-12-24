@@ -1,3 +1,4 @@
+import 'package:blue_bird/core/responsive_helper/size_helper_extensions.dart';
 import 'package:blue_bird/core/widgets/custom_textfield.dart';
 import 'package:blue_bird/utils/assets_manager.dart';
 import 'package:blue_bird/utils/color_manager.dart';
@@ -15,53 +16,68 @@ class LoginForm extends StatelessWidget {
     final cubit = context.read<LoginCubitCubit>();
 
     return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(16),
+      margin: EdgeInsets.all(context.setWidth(16)),
+      padding: EdgeInsets.all(context.setWidth(16)),
       decoration: BoxDecoration(
         color: ColorManager.primary.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(context.setMinSize(10)),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           CircleAvatar(
-            radius: 50,
-            backgroundImage: AssetImage(ImageAssets.logo),
+            radius: context.setMinSize(50),
+            backgroundImage: const AssetImage(ImageAssets.logo),
           ),
-          SizedBox(height: 20),
-          Text(StringsManager.blueBirdAcademy,
-              style: AppTextStyles.font24W500White(context)),
-          Text(StringsManager.coachesAttendanceSystem,
-              style: AppTextStyles.font14W800White(context)),
-          const SizedBox(height: 20),
-          Text(StringsManager.login,
-              style: AppTextStyles.font24W800White(context)),
+          SizedBox(height: context.setHeight(20)),
+          Text(
+            StringsManager.blueBirdAcademy,
+            style: AppTextStyles.font24W500White(context)
+                .copyWith(fontSize: context.setSp(24)),
+          ),
+          SizedBox(height: context.setHeight(4)),
+          Text(
+            StringsManager.coachesAttendanceSystem,
+            style: AppTextStyles.font14W800White(context)
+                .copyWith(fontSize: context.setSp(14)),
+          ),
+          SizedBox(height: context.setHeight(20)),
+          Text(
+            StringsManager.login,
+            style: AppTextStyles.font24W800White(context)
+                .copyWith(fontSize: context.setSp(24)),
+          ),
+          SizedBox(height: context.setHeight(16)),
           CustomTextField(
             hint: StringsManager.coachEmail,
             onChange: cubit.updateEmail,
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: context.setHeight(10)),
           CustomTextField(
             hint: StringsManager.coachPassword,
             obscureText: true,
             onChange: cubit.updatePassword,
           ),
-          const SizedBox(height: 20),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              minimumSize: const Size(double.infinity, 50),
-              backgroundColor: ColorManager.white,
-              foregroundColor: ColorManager.primary,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(40),
+          SizedBox(height: context.setHeight(20)),
+          SizedBox(
+            width: double.infinity,
+            height: context.setHeight(50),
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: ColorManager.white,
+                foregroundColor: ColorManager.primary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(
+                    context.setMinSize(40),
+                  ),
+                ),
               ),
-            ),
-            onPressed: () {
-              cubit.submit();
-            },
-            child: Text(
-              StringsManager.login,
-              style: AppTextStyles.font18W400primary(context),
+              onPressed: cubit.submit,
+              child: Text(
+                StringsManager.login,
+                style: AppTextStyles.font18W400primary(context)
+                    .copyWith(fontSize: context.setSp(18)),
+              ),
             ),
           ),
         ],
