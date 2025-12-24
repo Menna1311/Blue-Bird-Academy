@@ -1,9 +1,11 @@
-import 'package:blue_bird/core/widgets/custom_textfield.dart';
 import 'package:blue_bird/features/add_team/presentation/provider/add_team_form_provider.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:blue_bird/utils/color_manager.dart';
+import 'package:blue_bird/utils/strings_manager.dart';
+import 'package:blue_bird/utils/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
+import 'package:blue_bird/core/router/app_routes.dart';
 import '../cubit/add_team_cubit.dart';
 import 'age_category_dropdown.dart';
 import 'training_days_selector.dart';
@@ -12,7 +14,8 @@ import 'team_component.dart';
 import '../../data/models/team_model.dart';
 
 class AddTeamViewBody extends StatelessWidget {
-  const AddTeamViewBody({super.key});
+  const AddTeamViewBody({super.key, required this.trainerId});
+  final String trainerId;
 
   @override
   Widget build(BuildContext context) {
@@ -24,9 +27,10 @@ class AddTeamViewBody extends StatelessWidget {
             listener: (context, state) {
               if (state is AddTeamSuccess) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('تم إضافة الفريق بنجاح!')),
+                  const SnackBar(
+                      content: Text(StringsManager.teamAddedSuccessfully)),
                 );
-                Navigator.pop(context);
+                Navigator.pushReplacementNamed(context, AppRoutes.mainLayout);
               } else if (state is AddTeamFailure) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text(state.message.toString())),
@@ -40,27 +44,34 @@ class AddTeamViewBody extends StatelessWidget {
                     _buildHeader(context),
                     const SizedBox(height: 20),
                     TeamComponent(
-                      title: 'اسم الفريق',
-                      widget: CustomTextField(
-                        hint: 'اسم الفريق',
-                        controller:
-                            TextEditingController(text: provider.teamName),
-                        onChange: provider.setTeamName,
+                      title: StringsManager.teamName,
+                      widget: TextField(
+                        controller: provider.teamNameController,
+                        decoration: InputDecoration(
+                          hintText: StringsManager.teamName,
+                          filled: true,
+                          fillColor: const Color(0xffF8F9FD),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                        onChanged: (value) => provider.setTeamName(value),
                       ),
                     ),
                     const SizedBox(height: 20),
-                    TeamComponent(
-                      title: 'الفئة العمرية',
-                      widget: const AgeCategoryDropdown(),
+                    const TeamComponent(
+                      title: StringsManager.ageCategory,
+                      widget: AgeCategoryDropdown(),
+                    ),
+                    const SizedBox(height: 20),
+                    const TeamComponent(
+                      title: StringsManager.trainingDays,
+                      widget: TrainingDaysSelector(),
                     ),
                     const SizedBox(height: 20),
                     TeamComponent(
-                      title: 'ايام التدريب',
-                      widget: const TrainingDaysSelector(),
-                    ),
-                    const SizedBox(height: 20),
-                    TeamComponent(
-                      title: 'وقت التدريب',
+                      title: StringsManager.trainingTime,
                       widget: GestureDetector(
                         onTap: () async {
                           final time = await showTimePicker(
@@ -68,6 +79,7 @@ class AddTeamViewBody extends StatelessWidget {
                           if (time != null) provider.setTrainingTime(time);
                         },
                         child: Container(
+                          width: double.infinity,
                           padding: const EdgeInsets.symmetric(
                               vertical: 12, horizontal: 16),
                           decoration: BoxDecoration(
@@ -76,27 +88,30 @@ class AddTeamViewBody extends StatelessWidget {
                           ),
                           child: Text(provider.trainingTime != null
                               ? '${provider.trainingTime!.hour.toString().padLeft(2, '0')}:${provider.trainingTime!.minute.toString().padLeft(2, '0')}'
-                              : 'اختر وقت التدريب'),
+                              : StringsManager.selectTrainingTime),
                         ),
                       ),
                     ),
                     const SizedBox(height: 20),
-                    TeamComponent(
-                      title: 'اضافة لاعبين',
-                      widget: const AddPlayersCard(),
+                    const TeamComponent(
+                      title: StringsManager.addPlayers,
+                      widget: AddPlayersCard(),
                     ),
                     const SizedBox(height: 30),
                     state is AddTeamLoading
                         ? const CircularProgressIndicator()
                         : ElevatedButton(
                             onPressed: () => _submitTeam(context, provider),
-                            child: const Text('إضافة الفريق'),
                             style: ElevatedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 40, vertical: 16),
-                              backgroundColor: const Color(0xff0048FF),
+                              backgroundColor: ColorManager.primary,
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12)),
+                            ),
+                            child: Text(
+                              StringsManager.addTeam,
+                              style: AppTextStyles.font18W400White(context),
                             ),
                           ),
                     const SizedBox(height: 30),
@@ -113,7 +128,7 @@ class AddTeamViewBody extends StatelessWidget {
   void _submitTeam(BuildContext context, AddTeamFormProvider provider) {
     if (!provider.isValid()) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('الرجاء إكمال جميع الحقول')),
+        const SnackBar(content: Text(StringsManager.pleaseCompleteAllFields)),
       );
       return;
     }
@@ -129,8 +144,7 @@ class AddTeamViewBody extends StatelessWidget {
 
     final team = TeamModel(
       id: '',
-      trainerId: FirebaseAuth
-          .instance.currentUser!.uid, // replace with actual trainer ID
+      trainerId: trainerId, // Use the passed trainer ID
       teamName: provider.teamName,
       teamAgeCategory: provider.ageCategory!,
       trainingDays: provider.trainingDays,
@@ -147,7 +161,7 @@ class AddTeamViewBody extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
       decoration: const BoxDecoration(
-        color: Color(0xff0048FF),
+        color: ColorManager.primary,
         borderRadius: BorderRadius.only(
             bottomLeft: Radius.circular(40), bottomRight: Radius.circular(40)),
       ),
@@ -156,9 +170,8 @@ class AddTeamViewBody extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Spacer(),
             const Text(
-              'اضافة فريق جديد',
+              StringsManager.addNewTeam,
               style: TextStyle(
                   color: Colors.white,
                   fontSize: 22,

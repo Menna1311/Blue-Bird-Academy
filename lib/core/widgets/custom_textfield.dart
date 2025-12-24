@@ -1,16 +1,16 @@
 import 'package:blue_bird/utils/color_manager.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CustomTextField extends StatefulWidget {
   final String hint;
   final Function(String)? onChange;
-  final TextEditingController controller;
+  final TextEditingController? controller;
   final bool obscureText;
   final bool? readOnly;
   final String? Function(String?)? validator;
   final String? errorText;
   final IconData? prefixIcon;
+  final Color? textColor;
 
   const CustomTextField({
     super.key,
@@ -18,10 +18,11 @@ class CustomTextField extends StatefulWidget {
     this.onChange,
     this.obscureText = false,
     this.validator,
-    required this.controller,
+    this.controller,
     this.errorText,
     this.readOnly,
     this.prefixIcon,
+    this.textColor,
   });
 
   @override
@@ -40,7 +41,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 45.h,
+      height: 45,
       child: TextFormField(
         keyboardAppearance: Brightness.dark,
         obscureText: _obscureText,
@@ -48,7 +49,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
         readOnly: widget.readOnly ?? false,
         onChanged: widget.onChange,
         controller: widget.controller,
-        style: const TextStyle(color: ColorManager.white),
+        style: TextStyle(color: widget.textColor ?? ColorManager.white),
         decoration: InputDecoration(
           errorText: widget.errorText,
           filled: true,
@@ -63,7 +64,8 @@ class _CustomTextFieldState extends State<CustomTextField> {
           ),
           prefixIcon: Icon(widget.prefixIcon, color: ColorManager.white),
           hintText: widget.hint,
-          hintStyle: const TextStyle(color: ColorManager.white),
+          hintStyle: TextStyle(
+              color: (widget.textColor ?? ColorManager.white).withOpacity(0.5)),
         ),
       ),
     );

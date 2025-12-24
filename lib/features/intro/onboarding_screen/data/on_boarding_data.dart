@@ -3,22 +3,22 @@ import '../../../../utils/assets_manager.dart';
 class OnBoardingData {
   static final List<Map<String, String>> onboardingData = [
     {
-      "image": SVGAssets.onBoarding3,
-      "title": "The Price Of Excellence\nIs Discipline",
+      "image": ImageAssets.onBoarding3,
+      "title": "Discipline Builds\nChampions",
       "description":
-          "Success requires commitment. Stay consistent, push your limits, and see the results you deserve."
+          "Consistent attendance creates strong teams. Track presence, build commitment, and shape future champions."
     },
     {
-      "image": SVGAssets.onBoarding2,
-      "title": "Fitness Has Never Been So Much Fun",
+      "image": ImageAssets.onBoarding2,
+      "title": "Attendance Made\nSimple",
       "description":
-          "Transform your workouts into exciting challenges. Enjoy the journey, not just the destination!"
+          "Mark player attendance in seconds. Stay organized, save time, and focus on coaching."
     },
     {
-      "image": SVGAssets.onBoarding1,
-      "title": "NO MORE EXCUSES\nDo It Now",
+      "image": ImageAssets.onBoarding1,
+      "title": "Every Session\nMatters",
       "description":
-          "Your future self will thank you. Stop waiting, take action, and achieve greatness today!"
+          "Monitor player commitment across all sessions. Clear records help you lead your team with confidence."
     },
   ];
 }

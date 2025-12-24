@@ -8,6 +8,9 @@ class AddTeamFormProvider extends ChangeNotifier {
   TimeOfDay? trainingTime;
   List<PlayerEntity> players = [];
 
+  // Add this controller
+  TextEditingController teamNameController = TextEditingController();
+
   void setTeamName(String value) {
     teamName = value;
     notifyListeners();

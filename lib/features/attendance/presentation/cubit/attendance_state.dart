@@ -20,6 +20,8 @@ final class AttendancePlayersLoaded extends AttendanceState {
   AttendancePlayersLoaded(this.players);
 }
 
+final class AttendanceStatusChanged extends AttendanceState {}
+
 class AttendanceHistoryInitial extends AttendanceState {}
 
 class AttendanceHistoryLoading extends AttendanceState {}

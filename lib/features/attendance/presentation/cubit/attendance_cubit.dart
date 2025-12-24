@@ -14,6 +14,18 @@ class AttendanceCubit extends Cubit<AttendanceState> {
   AttendanceCubit(this._attendanceRepo) : super(AttendanceInitial());
   final AttendanceRepo _attendanceRepo;
 
+  Map<String, String> selectedStatuses = {};
+
+  void initializeStatuses(List<PlayerEntity> players) {
+    selectedStatuses = {for (var p in players) p.id: 'present'};
+    emit(AttendanceStatusChanged());
+  }
+
+  void updateStatus(String playerId, String status) {
+    selectedStatuses[playerId] = status;
+    emit(AttendanceStatusChanged());
+  }
+
   Future<void> markAttendance(String trainerId, String teamId, String sessionId,
       List<AttendanceModel> attendanceList) async {
     emit(AttendanceLoading());

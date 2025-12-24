@@ -4,14 +4,14 @@ class UserModel {
   String? id;
   String? email;
   String? password;
-
-  UserModel({this.id, this.email, this.password});
+  String? displayName;
+  UserModel({this.id, this.email, this.password, this.displayName});
 
   UserEntity toEntity() {
     return UserEntity(
       id: id ?? '',
       email: email ?? '',
-      password: password ?? '',
+      desplayName: displayName ?? '',
     );
   }
 }

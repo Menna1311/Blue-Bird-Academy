@@ -1,3 +1,4 @@
+import 'package:blue_bird/utils/color_manager.dart';
 import 'package:flutter/material.dart';
 
 class TeamComponent extends StatelessWidget {
@@ -7,6 +8,7 @@ class TeamComponent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -17,16 +19,25 @@ class TeamComponent extends StatelessWidget {
             offset: Offset(0, 1),
           ),
         ],
-        border: Border.all(color: Colors.grey, width: .5),
+        border: Border.all(color: Colors.grey.shade300, width: 0.5),
       ),
-      child: Column(
-        children: [
-          Text(
-            title,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-          widget,
-        ],
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: ColorManager.primary,
+              ),
+            ),
+            const SizedBox(height: 12),
+            widget,
+          ],
+        ),
       ),
     );
   }

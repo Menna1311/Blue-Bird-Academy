@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:blue_bird/features/home/presentation/views/home_view.dart';
+import 'package:blue_bird/features/home/presentation/views/sessions_view.dart';
 import 'package:blue_bird/utils/strings_manager.dart';
 import 'package:blue_bird/utils/text_styles.dart';
 import 'package:flutter/material.dart';
@@ -37,7 +38,7 @@ class MainLayoutViewModel extends ChangeNotifier {
           StringsManager.statisticis,
           style: AppTextStyles.font14W800White(context),
         ),
-        screen: const HomeScreen(),
+        screen: SessionsView(),
       ),
     ];
   }

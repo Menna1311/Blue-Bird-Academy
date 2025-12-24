@@ -35,7 +35,9 @@ Route manageRoutes(RouteSettings settings) {
       );
     case AppRoutes.addTeamScreen:
       return MaterialPageRoute(
-        builder: (context) => AddTeamView(),
+        builder: (context) => AddTeamView(
+          arguments: settings.arguments as Map<String, dynamic>?,
+        ),
       );
     case AppRoutes.attendanceScreen:
       return MaterialPageRoute(

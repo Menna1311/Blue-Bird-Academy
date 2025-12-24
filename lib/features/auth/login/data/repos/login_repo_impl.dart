@@ -1,6 +1,6 @@
 import 'package:blue_bird/core/common/result.dart';
+import 'package:blue_bird/core/service/auth_service.dart';
 import 'package:blue_bird/core/service/execute_secure_storage.dart';
-import 'package:blue_bird/core/service/firebase_auth_service.dart';
 import 'package:blue_bird/core/service/secure_storage_service.dart';
 import 'package:blue_bird/features/auth/login/data/models/user_model.dart';
 import 'package:blue_bird/features/auth/login/domain/entities/user_entity.dart';
@@ -9,7 +9,7 @@ import 'package:injectable/injectable.dart';
 
 @Injectable(as: LoginRepo)
 class LoginRepoImpl extends LoginRepo {
-  final FirebaseAuthService _firebaseAuth;
+  final AuthService _firebaseAuth;
   final SecureStorageService _secureStorageService;
   LoginRepoImpl(this._firebaseAuth, this._secureStorageService);
 
@@ -43,7 +43,7 @@ class LoginRepoImpl extends LoginRepo {
         return Success(false);
       }
     } else {
-      return Success(false); // treat errors as no token
+      return Success(false);
     }
   }
 }

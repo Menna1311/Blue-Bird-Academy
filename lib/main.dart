@@ -1,16 +1,17 @@
 import 'package:blue_bird/core/common/bloc_observer.dart';
 import 'package:blue_bird/core/di/di.dart';
 import 'package:blue_bird/core/providers/user_provider.dart';
+import 'package:blue_bird/core/responsive_helper/size_provider.dart';
 import 'package:blue_bird/core/router/app_routes.dart';
 import 'package:blue_bird/core/router/router.dart';
 import 'package:blue_bird/features/add_team/presentation/provider/add_team_form_provider.dart';
 import 'package:blue_bird/firebase_options.dart';
 import 'package:blue_bird/utils/color_manager.dart';
+import 'package:device_preview/device_preview.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 
 Future<void> main() async {
@@ -33,7 +34,10 @@ Future<void> main() async {
       builder: (context, child) {
         return child!;
       },
-      child: const MyApp()));
+      child: DevicePreview(
+        enabled: true,
+        builder: (context) => MyApp(),
+      )));
 }
 
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
@@ -44,10 +48,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ScreenUtilInit(
-      designSize: const Size(411, 890),
-      minTextAdapt: true,
-      splitScreenMode: true,
+    return SizeProvider(
+      baseSize: const Size(375, 812),
+      width: MediaQuery.of(context).size.width,
+      height: MediaQuery.of(context).size.height,
+      baseTextSize: 16,
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         scaffoldMessengerKey: scaffoldMessengerKey,

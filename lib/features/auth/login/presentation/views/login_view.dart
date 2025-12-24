@@ -1,8 +1,13 @@
+// login_view.dart
+
 import 'package:blue_bird/core/di/di.dart';
+import 'package:blue_bird/core/responsive_helper/size_helper_extensions.dart';
 import 'package:blue_bird/core/router/app_routes.dart';
 import 'package:blue_bird/features/auth/login/presentation/cubit/login_cubit_cubit.dart';
 import 'package:blue_bird/features/auth/login/presentation/widgets/login_view_body.dart';
+import 'package:blue_bird/utils/assets_manager.dart';
 import 'package:blue_bird/utils/color_manager.dart';
+import 'package:blue_bird/utils/strings_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
@@ -15,12 +20,12 @@ class LoginView extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) {
-        cubit.checkUserToken(); // 🔥 CHECK TOKEN ON START
+        cubit.checkUserToken();
         return cubit;
       },
-      child: Scaffold(
+      child: const Scaffold(
         backgroundColor: ColorManager.primary,
-        body: const LoginBlocConsumer(),
+        body: LoginBlocConsumer(),
       ),
     );
   }
@@ -37,39 +42,49 @@ class LoginBlocConsumer extends StatelessWidget {
           Navigator.pushReplacementNamed(context, AppRoutes.mainLayout);
         } else if (state is LoginCubitSuccess) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Welcome, ${state.user.email}')),
+            SnackBar(
+              content: Text(
+                '${StringsManager.welcome} ${state.user.email}',
+                style: TextStyle(fontSize: context.setSp(14)),
+              ),
+            ),
           );
           Navigator.pushReplacementNamed(context, AppRoutes.mainLayout);
         } else if (state is LoginCubitError) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error: ${state.message}')),
+            SnackBar(
+              content: Text(
+                state.message,
+                style: TextStyle(fontSize: context.setSp(14)),
+              ),
+            ),
           );
         }
       },
       builder: (context, state) {
         if (state is LoginCubitLoading || state is LoginCubitInitial) {
-          // show loading until token check is finished
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Lottie.asset(
-                  'assets/lotti/Footballer_loading.json',
-                  width: 200,
+                  LottieAssets.loading,
+                  width: context.setWidth(200),
                 ),
-                const SizedBox(height: 16),
-                const Text(
-                  'Loading...',
-                  style: TextStyle(color: Colors.white),
+                SizedBox(height: context.setHeight(16)),
+                Text(
+                  StringsManager.loading,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: context.setSp(16),
+                  ),
                 ),
               ],
             ),
           );
-        } else if (state is NoToken) {
+        } else if (state is NoToken || state is LoginCubitError) {
           return const LoginViewBody();
         }
-
-        // fallback (should not happen)
         return const SizedBox.shrink();
       },
     );

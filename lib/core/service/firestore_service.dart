@@ -37,17 +37,18 @@ class FirestoreService implements DatabaseService {
   }
 
   @override
-  Future<List<TeamModel>> getTeams(String trainerId) async {
+  Future<Result<List<TeamModel>>> getTeams(String trainerId) async {
     final snapshot = await firestore
         .collection('trainers')
         .doc(trainerId)
         .collection('teams')
         .get();
 
-    return snapshot.docs
-        .map((doc) =>
-            TeamModel.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+    final teams = snapshot.docs
+        .map((doc) => TeamModel.fromMap(doc.data(), doc.id))
         .toList();
+
+    return Success(teams);
   }
 
   @override
@@ -156,12 +157,10 @@ class FirestoreService implements DatabaseService {
         .doc(sessionId)
         .collection('attendance_records');
 
-    final playersMap = {
-      for (var a in attendanceList) a.playerId: a.toMap(),
-    };
+    final attendanceData = attendanceList.map((a) => a.toMap()).toList();
 
     await attendanceCollection.add({
-      'players': playersMap,
+      'players': attendanceData,
       'takenAt': FieldValue.serverTimestamp(),
     });
 
@@ -246,9 +245,9 @@ class FirestoreService implements DatabaseService {
 
         for (var record in recordsSnap.docs) {
           final takenAt = record['takenAt'] as Timestamp;
-          final playersMap = record['players'] as Map<String, dynamic>;
+          final playersList = record['players'] as List<dynamic>;
 
-          playersMap.forEach((_, playerData) {
+          for (var playerData in playersList) {
             history.add(
               AttendanceHistoryModel(
                 takenAt: takenAt,
@@ -256,7 +255,7 @@ class FirestoreService implements DatabaseService {
                 status: playerData['status'],
               ),
             );
-          });
+          }
         }
       }
 

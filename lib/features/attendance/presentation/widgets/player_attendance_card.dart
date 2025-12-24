@@ -1,4 +1,6 @@
+import 'package:blue_bird/core/responsive_helper/size_helper_extensions.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class PlayerAttendanceCard extends StatelessWidget {
   final String playerName;
@@ -14,67 +16,106 @@ class PlayerAttendanceCard extends StatelessWidget {
     required this.onStatusChanged,
   });
 
+  Color _getStatusColor(String status) {
+    switch (status) {
+      case 'حاضر':
+        return Colors.green;
+      case 'غائب':
+        return Colors.red;
+      case 'متأخر':
+        return Colors.orange;
+      default:
+        return Colors.grey;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    Color getStatusColor(String status) {
-      switch (status) {
-        case 'حاضر':
-          return Colors.green;
-        case 'غائب':
-          return Colors.red;
-        case 'متأخر':
-          return Colors.orange;
-        default:
-          return Colors.grey;
-      }
-    }
-
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      margin: EdgeInsets.symmetric(
+        horizontal: context.setWidth(16),
+        vertical: context.setHeight(8),
+      ),
+      elevation: context.setMinSize(2),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(
+          context.setMinSize(12),
+        ),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(12),
+        padding: EdgeInsets.all(
+          context.setWidth(12),
+        ),
         child: Row(
           children: [
-            // Player Info
+            /// Player Info
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     playerName,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
+                    style: GoogleFonts.balooThambi2(
+                      textStyle: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: context.setSp(16),
+                        color: Colors.black,
+                      ),
                     ),
                   ),
+                  SizedBox(height: context.setHeight(4)),
                   Text(
                     'رقم القميص: $jerseyNumber',
-                    style: const TextStyle(color: Colors.grey),
+                    style: GoogleFonts.balooThambi2(
+                      textStyle: TextStyle(
+                        color: Colors.grey,
+                        fontSize: context.setSp(14),
+                      ),
+                    ),
                   ),
                 ],
               ),
             ),
 
-            // Status Buttons
+            /// Status Buttons
             Row(
               children: ['حاضر', 'غائب', 'متأخر'].map((status) {
                 final isSelected = selectedStatus == status;
+
                 return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: ElevatedButton(
-                    onPressed: () => onStatusChanged(status),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: isSelected
-                          ? getStatusColor(status)
-                          : Colors.grey[200],
-                      foregroundColor:
-                          isSelected ? Colors.white : Colors.black87,
-                      minimumSize: const Size(60, 36),
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: context.setWidth(4),
+                  ),
+                  child: SizedBox(
+                    width: context.setWidth(56),
+                    height: context.setHeight(36),
+                    child: ElevatedButton(
+                      onPressed: () => onStatusChanged(status),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: isSelected
+                            ? _getStatusColor(status)
+                            : Colors.grey.shade200,
+                        foregroundColor:
+                            isSelected ? Colors.white : Colors.black87,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: context.setWidth(4),
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                            context.setMinSize(8),
+                          ),
+                        ),
+                      ),
+                      child: Text(
+                        status,
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.balooThambi2(
+                          textStyle: TextStyle(
+                            fontSize: context.setSp(12),
+                          ),
+                        ),
+                      ),
                     ),
-                    child: Text(status, style: const TextStyle(fontSize: 12)),
                   ),
                 );
               }).toList(),

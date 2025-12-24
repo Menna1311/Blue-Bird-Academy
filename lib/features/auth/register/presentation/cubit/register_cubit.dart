@@ -9,18 +9,41 @@ part 'register_state.dart';
 
 @injectable
 class RegisterCubit extends Cubit<RegisterState> {
-  RegisterCubit(this.registerRepo) : super(RegisterInitial());
-  final RegisterRepo registerRepo;
+  RegisterCubit(this._registerRepo) : super(RegisterInitial());
 
-  Future<void> regiser(String email, String password) async {
+  final RegisterRepo _registerRepo;
+
+  String email = '';
+  String password = '';
+  String username = '';
+  void updateEmail(String value) => email = value;
+
+  void updatePassword(String value) => password = value;
+
+  void updateUsername(String value) => username = value;
+
+  Future<void> submit() async {
+    if (email.isEmpty || password.isEmpty || username.isEmpty) {
+      emit(RegisterFail("Please fill all fields"));
+      return;
+    }
+
     emit(RegisterLoading());
-    final result = await registerRepo.register(email, password);
+    await Future.delayed(const Duration(seconds: 2));
+
+    final result = await _registerRepo.register(email, password, username);
+
     switch (result) {
       case Success<UserEntity>():
-        emit(RegisterSuccess(result.data!));
+        final user = result.data!;
+
+        await _registerRepo.setUserToken(user.id);
+
+        emit(RegisterSuccess(user));
         break;
+
       case Fail<UserEntity>():
-        emit(RegisterFail(result.exception!.toString()));
+        emit(RegisterFail(result.exception.toString()));
         break;
     }
   }
