@@ -1,6 +1,8 @@
 import 'package:blue_bird/features/attendance/data/models/attendance_history_model.dart';
 import 'package:blue_bird/features/attendance/presentation/cubit/attendance_cubit.dart';
+import 'package:blue_bird/utils/strings_manager.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -26,7 +28,7 @@ class AttendanceHistoryScreen extends StatelessWidget {
       create: (_) => GetIt.I<AttendanceCubit>()..getHistory(trainerId, teamId),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("سجل الحضور"),
+          title: Text(StringsManager.attendanceHistory.tr()),
           centerTitle: true,
         ),
         body: BlocBuilder<AttendanceCubit, AttendanceState>(
@@ -39,7 +41,7 @@ class AttendanceHistoryScreen extends StatelessWidget {
               final history = state.history;
 
               if (history.isEmpty) {
-                return const Center(child: Text("لا يوجد سجل حضور"));
+                return Center(child: Text(StringsManager.noHistoryYet.tr()));
               }
 
               // Group by takenAt
@@ -56,7 +58,7 @@ class AttendanceHistoryScreen extends StatelessWidget {
                 children: dates
                     .map((date) => ExpansionTile(
                           title: Text(
-                            "تم تسجيل الحضور في: ${formatTimestamp(date)}",
+                            "${StringsManager.recordedOn.tr()} ${formatTimestamp(date)}",
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                           children: grouped[date]!

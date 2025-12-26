@@ -3,7 +3,9 @@ import 'package:blue_bird/features/attendance/data/models/attendance_model.dart'
 import 'package:blue_bird/features/attendance/presentation/cubit/attendance_cubit.dart';
 import 'package:blue_bird/features/attendance/presentation/widgets/player_attendance_card.dart';
 import 'package:blue_bird/utils/color_manager.dart';
+import 'package:blue_bird/utils/strings_manager.dart';
 import 'package:blue_bird/utils/values_manager.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -94,8 +96,8 @@ class AttendanceViewBody extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
-              'Attendance',
+            Text(
+              StringsManager.attendance.tr(),
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 22,
@@ -121,7 +123,8 @@ class AttendanceViewBody extends StatelessWidget {
       listener: (context, state) {
         if (state is AttendanceSuccess) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Attendance saved successfully!")),
+            SnackBar(
+                content: Text(StringsManager.attendancesavedSuccessfully.tr())),
           );
         } else if (state is AttendanceError) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -198,7 +201,7 @@ class AttendanceViewBody extends StatelessWidget {
                                     attendanceList,
                                   );
                                 },
-                                child: const Text("Save Attendance"),
+                                child: Text(StringsManager.saveAttendance.tr()),
                               ),
                       ),
                     )

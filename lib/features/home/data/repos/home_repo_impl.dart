@@ -1,6 +1,7 @@
 import 'package:blue_bird/core/common/result.dart';
 import 'package:blue_bird/core/service/auth_service.dart';
 import 'package:blue_bird/core/service/database_service.dart';
+import 'package:blue_bird/core/service/secure_storage_service.dart';
 import 'package:blue_bird/features/add_team/data/models/team_model.dart';
 import 'package:blue_bird/features/add_team/domain/entities/team_entity.dart';
 import 'package:blue_bird/features/auth/login/domain/entities/user_entity.dart';
@@ -13,7 +14,10 @@ import 'package:injectable/injectable.dart';
 class HomeRepoImpl implements HomeRepo {
   final DatabaseService _firestoreService;
   final AuthService _authService;
-  HomeRepoImpl(this._firestoreService, this._authService);
+
+  final SecureStorageService _secureStorageService;
+  HomeRepoImpl(
+      this._firestoreService, this._authService, this._secureStorageService);
 
   @override
   Future<Result<SessionEntity>> getSession(
@@ -80,5 +84,11 @@ class HomeRepoImpl implements HomeRepo {
   @override
   Future<Result<UserEntity>> getLoggedInUser() {
     return _authService.getLoggedInUser();
+  }
+
+  @override
+  Future<Result<void>> logout() {
+    _secureStorageService.deleteToken();
+    return _authService.logout();
   }
 }

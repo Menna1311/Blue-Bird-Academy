@@ -8,6 +8,7 @@ import 'package:blue_bird/features/auth/login/presentation/widgets/login_view_bo
 import 'package:blue_bird/utils/assets_manager.dart';
 import 'package:blue_bird/utils/color_manager.dart';
 import 'package:blue_bird/utils/strings_manager.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
@@ -44,7 +45,7 @@ class LoginBlocConsumer extends StatelessWidget {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                '${StringsManager.welcome} ${state.user.email}',
+                '${StringsManager.welcome.tr()} ${state.user.email}',
                 style: TextStyle(fontSize: context.setSp(14)),
               ),
             ),
@@ -73,7 +74,7 @@ class LoginBlocConsumer extends StatelessWidget {
                 ),
                 SizedBox(height: context.setHeight(16)),
                 Text(
-                  StringsManager.loading,
+                  StringsManager.loading.tr(),
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: context.setSp(16),

@@ -1,6 +1,7 @@
 import 'package:blue_bird/utils/color_manager.dart';
 import 'package:blue_bird/utils/strings_manager.dart';
 import 'package:blue_bird/utils/text_styles.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../domain/entities/player_entity.dart';
@@ -48,7 +49,7 @@ class _AddPlayersCardState extends State<AddPlayersCard> {
             children: [
               Icon(Icons.group_outlined, color: ColorManager.primary),
               const SizedBox(width: 8),
-              Text("${StringsManager.addPlayersTitle} (${players.length})",
+              Text("${StringsManager.addPlayersTitle.tr()} (${players.length})",
                   style: const TextStyle(
                       fontWeight: FontWeight.bold, fontSize: 16)),
             ],
@@ -61,7 +62,7 @@ class _AddPlayersCardState extends State<AddPlayersCard> {
                 child: TextField(
                   controller: nameController,
                   decoration: InputDecoration(
-                    hintText: StringsManager.playerName,
+                    hintText: StringsManager.playerName.tr(),
                     filled: true,
                     fillColor: Colors.grey[100],
                     border: OutlineInputBorder(
@@ -78,7 +79,7 @@ class _AddPlayersCardState extends State<AddPlayersCard> {
                   controller: numberController,
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
-                    hintText: StringsManager.jerseyNumber,
+                    hintText: StringsManager.jerseyNumber.tr(),
                     filled: true,
                     fillColor: Colors.grey[100],
                     border: OutlineInputBorder(
@@ -93,7 +94,7 @@ class _AddPlayersCardState extends State<AddPlayersCard> {
                 onPressed: addPlayer,
                 icon: Icon(Icons.add, size: 18, color: ColorManager.white),
                 label: Text(
-                  StringsManager.add,
+                  StringsManager.add.tr(),
                   style: AppTextStyles.font18W400White(context),
                 ),
                 style: ElevatedButton.styleFrom(

@@ -7,16 +7,19 @@ import 'package:blue_bird/features/home/presentation/widgets/team_card.dart';
 import 'package:blue_bird/utils/assets_manager.dart';
 import 'package:blue_bird/utils/color_manager.dart';
 import 'package:blue_bird/utils/strings_manager.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
+    final cubit = getIt<HomeCubit>();
     return BlocProvider<HomeCubit>(
-      create: (_) => getIt<HomeCubit>()..getCurrentUser(),
+      create: (_) => cubit..getCurrentUser(),
       child: const _HomeView(),
     );
   }
@@ -24,6 +27,7 @@ class HomeScreen extends StatelessWidget {
 
 class _HomeView extends StatelessWidget {
   const _HomeView();
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<HomeCubit, HomeState>(
@@ -36,33 +40,42 @@ class _HomeView extends StatelessWidget {
         if (state is UserLoading || state is HomeInitial) {
           return _buildLoading();
         }
+
         if (state is UserError) {
-          return _buildUserError(context, state.exception);
+          return _buildError(
+            context,
+            onRetry: () => context.read<HomeCubit>().getCurrentUser(),
+          );
         }
+
         UserEntity? user;
         if (state is UserLoaded) {
           user = state.user;
-        } else if (state is TeamsLoaded ||
-            state is SessionsLoaded ||
-            state is SessionLoaded) {
+        } else {
           user = context.read<HomeCubit>().currentUser;
         }
+
         if (state is TeamsLoading) {
           return _buildLoading();
         }
 
         if (state is TeamsError) {
-          return _buildTeamsError(context, user!, state.exception);
+          return _buildError(
+            context,
+            onRetry: () => context.read<HomeCubit>().getTeams(user!.id),
+          );
         }
 
         if (state is TeamsLoaded) {
-          return _buildTeamsLoaded(context, user!, state.teams);
+          return _buildContent(context, user!, state.teams);
         }
 
         return _buildLoading();
       },
     );
   }
+
+  // ================= UI PARTS =================
 
   Widget _buildLoading() {
     return Center(
@@ -73,46 +86,29 @@ class _HomeView extends StatelessWidget {
     );
   }
 
-  Widget _buildUserError(BuildContext context, Exception exception) {
+  Widget _buildError(BuildContext context, {required VoidCallback onRetry}) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text(StringsManager.somethingWentWrong),
+          Text(StringsManager.somethingWentWrong.tr()),
           const SizedBox(height: 20),
           ElevatedButton(
-            onPressed: () {
-              context.read<HomeCubit>().getCurrentUser();
-            },
-            child: const Text(StringsManager.tryAgain),
+            onPressed: onRetry,
+            child: Text(StringsManager.tryAgain.tr()),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildTeamsError(
-      BuildContext context, UserEntity user, Exception exception) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Text(StringsManager.somethingWentWrong),
-          const SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: () {
-              context.read<HomeCubit>().getTeams(user.id);
-            },
-            child: const Text(StringsManager.tryAgain),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTeamsLoaded(
-      BuildContext context, UserEntity user, List<TeamEntity> teams) {
+  Widget _buildContent(
+    BuildContext context,
+    UserEntity user,
+    List<TeamEntity> teams,
+  ) {
     return SingleChildScrollView(
+      // physics: const BouncingScrollPhysics(),
       child: Column(
         children: [
           _buildHeader(context, user, teams.length),
@@ -120,17 +116,37 @@ class _HomeView extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Column(
-              children: teams.map((team) {
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: TeamCard(
-                    teamName: team.teamName,
-                    teamAge: team.teamAgeCategory,
-                    numberOfPlayers: team.players.length,
-                    trainingDays: team.trainingDays,
-                    teamId: team.id,
-                    trainerId: user.id,
-                    players: team.players,
+              children: teams.asMap().entries.map((entry) {
+                final index = entry.key;
+                final team = entry.value;
+
+                return TweenAnimationBuilder<Offset>(
+                  tween: Tween(
+                    begin: const Offset(0, 0.2),
+                    end: Offset.zero,
+                  ),
+                  duration: Duration(milliseconds: 300 + index * 100),
+                  curve: Curves.easeOut,
+                  builder: (_, offset, child) {
+                    return Transform.translate(
+                      offset: offset * 100,
+                      child: Opacity(
+                        opacity: 1 - offset.dy,
+                        child: child,
+                      ),
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: TeamCard(
+                      teamName: team.teamName,
+                      teamAge: team.teamAgeCategory,
+                      numberOfPlayers: team.players.length,
+                      trainingDays: team.trainingDays,
+                      teamId: team.id,
+                      trainerId: user.id,
+                      players: team.players,
+                    ),
                   ),
                 );
               }).toList(),
@@ -142,11 +158,24 @@ class _HomeView extends StatelessWidget {
   }
 
   Widget _buildHeader(BuildContext context, UserEntity user, int teamsCount) {
-    return Container(
+    final cubit = getIt<HomeCubit>();
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 600),
+      curve: Curves.easeOut,
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
       decoration: const BoxDecoration(
-        color: ColorManager.primary,
+        gradient: LinearGradient(
+          transform: GradientRotation(45 * 3.14 / 180),
+          colors: [
+            ColorManager.primary,
+            ColorManager.lightPrimary,
+            ColorManager.primary,
+          ],
+          begin: Alignment.topRight,
+          end: Alignment.bottomLeft,
+        ),
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(40),
           bottomRight: Radius.circular(40),
@@ -157,49 +186,106 @@ class _HomeView extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              StringsManager.welcome,
-              style: TextStyle(
-                color: Colors.white70,
-                fontSize: 16,
-              ),
+            // ===== TOP ROW =====
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      StringsManager.welcome.tr(),
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      user.desplayName ?? 'Coach',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Football Academy',
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.8),
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
+                InkWell(
+                  borderRadius: BorderRadius.circular(30),
+                  onTap: () {
+                    cubit.logout();
+                    Navigator.pushReplacementNamed(
+                      context,
+                      AppRoutes.splashScreen,
+                    );
+                  },
+                  child: const Icon(
+                    Icons.logout,
+                    color: Colors.white,
+                    size: 28,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 4),
-            Text(
-              user.desplayName ?? 'User',
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 20),
+
+            const SizedBox(height: 25),
+
+            // ===== STATS =====
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(16),
+                color: Colors.white.withOpacity(0.12),
+                borderRadius: BorderRadius.circular(18),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  const _StatItem(
-                      title: StringsManager.totalPlayers, value: '—'),
-                  _StatItem(
-                    title: StringsManager.teams,
+                  _AnimatedStatItem(
+                    title: StringsManager.totalPlayers.tr(),
+                    value: '0',
+                  ),
+                  _AnimatedStatItem(
+                    title: StringsManager.teams.tr(),
                     value: teamsCount.toString(),
                   ),
                 ],
               ),
             ),
+
             const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pushNamed(context, AppRoutes.addTeamScreen,
-                    arguments: {'trainerId': user.id});
-              },
-              child: const Text(StringsManager.addTeam),
-            )
+
+            // ===== ADD TEAM BUTTON =====
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                icon: const Icon(Icons.sports_soccer),
+                label: Text(StringsManager.addTeam.tr()),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: ColorManager.primary,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.pushNamed(
+                    context,
+                    AppRoutes.addTeamScreen,
+                    arguments: {'trainerId': user.id},
+                  );
+                },
+              ),
+            ),
           ],
         ),
       ),
@@ -207,32 +293,47 @@ class _HomeView extends StatelessWidget {
   }
 }
 
-class _StatItem extends StatelessWidget {
+// ================= COMPONENTS =================
+
+class _AnimatedStatItem extends StatelessWidget {
   final String title;
   final String value;
 
-  const _StatItem({required this.title, required this.value});
+  const _AnimatedStatItem({
+    required this.title,
+    required this.value,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(
-          value,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        Text(
-          title,
-          style: const TextStyle(
-            color: Colors.white70,
-            fontSize: 14,
-          ),
-        ),
-      ],
+    final endValue = double.tryParse(value) ?? 0;
+
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: endValue),
+      duration: const Duration(milliseconds: 800),
+      curve: Curves.easeOut,
+      builder: (_, val, __) {
+        return Column(
+          children: [
+            Text(
+              val.toInt().toString(),
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              title,
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 14,
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

@@ -17,4 +17,7 @@ abstract class AuthService {
   Future<Result<UserEntity>> getLoggedInUser();
 
   Future<Result<void>> logout();
+  Future<Result<void>> resetPassword({
+    required String email,
+  });
 }

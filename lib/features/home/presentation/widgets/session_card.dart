@@ -1,4 +1,6 @@
+import 'package:blue_bird/utils/strings_manager.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:blue_bird/utils/color_manager.dart';
@@ -26,7 +28,6 @@ class SessionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final timeFormatted = DateFormat('HH:mm').format(time.toDate());
-    // final dateFormatted = DateFormat('d MMMM').format(date.toDate());
 
     return Container(
       margin: const EdgeInsets.symmetric(
@@ -37,7 +38,7 @@ class SessionCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppSize.s16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withOpacity(0.08),
             blurRadius: AppSize.s8,
             offset: const Offset(0, AppSize.s4),
           ),
@@ -52,6 +53,7 @@ class SessionCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Status + time
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -81,65 +83,31 @@ class SessionCard extends StatelessWidget {
               ),
               Row(
                 children: [
-                  Icon(
-                    Icons.access_time_rounded,
-                    color: ColorManager.primary,
-                    size: AppSize.s20,
-                  ),
+                  const Icon(Icons.access_time_rounded,
+                      color: ColorManager.primary, size: AppSize.s20),
                   const SizedBox(width: AppSize.s8),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Text(
-                        dayName,
-                        style: AppTextStyles.font14W800White(
-                          context,
-                          color: ColorManager.black,
-                          fontSize: AppSize.s14,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      Text(
-                        timeFormatted,
-                        style: AppTextStyles.font14W800White(
-                          context,
-                          color: Colors.grey.shade600,
-                          fontSize: AppSize.s12,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
+                      Text(dayName,
+                          style: TextStyle(
+                            color: Colors.black87,
+                            fontWeight: FontWeight.w600,
+                            fontSize: AppSize.s14,
+                          )),
+                      Text(timeFormatted,
+                          style: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontWeight: FontWeight.w400,
+                            fontSize: AppSize.s12,
+                          )),
                     ],
                   ),
                 ],
               ),
             ],
           ),
-
-          const SizedBox(height: AppSize.s12),
-
-          // Date row
-          // Row(
-          //   children: [
-          //     Icon(
-          //       Icons.calendar_today_rounded,
-          //       color: ColorManager.primary,
-          //       size: AppSize.s18,
-          //     ),
-          //     const SizedBox(width: AppSize.s8),
-          //     Text(
-          //       dateFormatted,
-          //       style: AppTextStyles.font14W800White(
-          //         context,
-          //         color: Colors.grey.shade700,
-          //         fontSize: AppSize.s14,
-          //         fontWeight: FontWeight.w500,
-          //       ),
-          //     ),
-          //   ],
-          // ),
-
           const SizedBox(height: AppSize.s16),
-
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
@@ -153,17 +121,15 @@ class SessionCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(AppSize.s12),
                 ),
                 elevation: AppSize.s2,
-                shadowColor: isUpcoming
-                    ? ColorManager.primary.withOpacity(0.3)
-                    : Colors.grey,
               ),
               child: Text(
-                isUpcoming ? "Mark Attendance" : "View Attendance History",
-                style: AppTextStyles.font18W400White(
-                  context,
-                  color: ColorManager.white,
-                  fontSize: AppSize.s16,
+                isUpcoming
+                    ? StringsManager.markAttendance.tr()
+                    : StringsManager.viewAttendanceHistory.tr(),
+                style: const TextStyle(
+                  color: Colors.white,
                   fontWeight: FontWeight.w600,
+                  fontSize: AppSize.s16,
                 ),
               ),
             ),

@@ -70,4 +70,13 @@ class HomeCubit extends Cubit<HomeState> {
       emit(TeamsError(result.exception!));
     }
   }
+
+  Future<void> logout() async {
+    final result = await _homeRepo.logout();
+    if (result is Success<void>) {
+      // Handle successful logout if needed
+    } else if (result is Fail<void>) {
+      // Handle logout error if needed
+    }
+  }
 }

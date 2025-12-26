@@ -7,6 +7,7 @@ import 'package:blue_bird/utils/color_manager.dart';
 import 'package:blue_bird/features/auth/register/presentation/cubit/register_cubit.dart';
 import 'package:blue_bird/utils/strings_manager.dart';
 import 'package:blue_bird/utils/text_styles.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
@@ -38,7 +39,7 @@ class RegisterBlocConsumer extends StatelessWidget {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                "${StringsManager.welcome} ${state.user.email}",
+                "${StringsManager.welcome.tr()} ${state.user.email}",
                 style: TextStyle(fontSize: context.setSp(14)),
               ),
             ),
@@ -58,7 +59,7 @@ class RegisterBlocConsumer extends StatelessWidget {
                 ),
                 SizedBox(height: context.setHeight(16)),
                 Text(
-                  StringsManager.loading,
+                  StringsManager.loading.tr(),
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: context.setSp(16),
@@ -111,36 +112,36 @@ class RegisterViewBody extends StatelessWidget {
                 ),
                 SizedBox(height: context.setHeight(20)),
                 Text(
-                  StringsManager.blueBirdAcademy,
+                  StringsManager.blueBirdAcademy.tr(),
                   style: AppTextStyles.font24W500White(context)
                       .copyWith(fontSize: context.setSp(24)),
                 ),
                 SizedBox(height: context.setHeight(4)),
                 Text(
-                  StringsManager.coachesAttendanceSystem,
+                  StringsManager.coachesAttendanceSystem.tr(),
                   style: AppTextStyles.font14W800White(context)
                       .copyWith(fontSize: context.setSp(14)),
                 ),
                 SizedBox(height: context.setHeight(20)),
                 Text(
-                  StringsManager.register,
+                  StringsManager.register.tr(),
                   style: AppTextStyles.font24W800White(context)
                       .copyWith(fontSize: context.setSp(24)),
                 ),
                 SizedBox(height: context.setHeight(20)),
                 CustomTextField(
-                  hint: StringsManager.coachEmail,
+                  hint: StringsManager.coachEmail.tr(),
                   onChange: cubit.updateEmail,
                 ),
                 SizedBox(height: context.setHeight(12)),
                 CustomTextField(
-                  hint: StringsManager.coachPassword,
+                  hint: StringsManager.coachPassword.tr(),
                   obscureText: true,
                   onChange: cubit.updatePassword,
                 ),
                 SizedBox(height: context.setHeight(12)),
                 CustomTextField(
-                  hint: StringsManager.coachName,
+                  hint: StringsManager.coachName.tr(),
                   onChange: cubit.updateUsername,
                 ),
                 SizedBox(height: context.setHeight(20)),
@@ -159,7 +160,7 @@ class RegisterViewBody extends StatelessWidget {
                     ),
                     onPressed: cubit.submit,
                     child: Text(
-                      StringsManager.register,
+                      StringsManager.register.tr(),
                       style: AppTextStyles.font18W400primary(context)
                           .copyWith(fontSize: context.setSp(18)),
                     ),
@@ -182,7 +183,7 @@ class RegisterViewBody extends StatelessWidget {
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(
-              StringsManager.loginNow,
+              StringsManager.loginNow.tr(),
               style: AppTextStyles.font18W400White(context)
                   .copyWith(fontSize: context.setSp(18)),
             ),

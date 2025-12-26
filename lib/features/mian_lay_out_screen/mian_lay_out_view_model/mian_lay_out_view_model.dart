@@ -1,9 +1,10 @@
 import 'dart:ui';
 
+import 'package:blue_bird/features/coming_soon/coming_seen_screen.dart';
 import 'package:blue_bird/features/home/presentation/views/home_view.dart';
-import 'package:blue_bird/features/home/presentation/views/sessions_view.dart';
 import 'package:blue_bird/utils/strings_manager.dart';
 import 'package:blue_bird/utils/text_styles.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -27,7 +28,7 @@ class MainLayoutViewModel extends ChangeNotifier {
       TabItem(
         icon: SVGAssets.homeTab,
         label: Text(
-          StringsManager.home,
+          StringsManager.home.tr(),
           style: AppTextStyles.font14W800White(context),
         ),
         screen: const HomeScreen(),
@@ -35,11 +36,19 @@ class MainLayoutViewModel extends ChangeNotifier {
       TabItem(
         icon: SVGAssets.statistics,
         label: Text(
-          StringsManager.statisticis,
+          StringsManager.statisticis.tr(),
           style: AppTextStyles.font14W800White(context),
         ),
-        screen: SessionsView(),
+        screen: const ComingSeenScreen(),
       ),
+      // TabItem(
+      //   icon: SVGAssets.profile,
+      //   label: Text(
+      //     StringsManager.profile,
+      //     style: AppTextStyles.font14W800White(context),
+      //   ),
+      //   screen: const ComingSeenScreen(),
+      // ),
     ];
   }
 
