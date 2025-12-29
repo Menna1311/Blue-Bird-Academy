@@ -10,4 +10,5 @@ abstract class HomeRepo {
       String trainerId, String teamId);
   Future<Result<List<TeamEntity>>> getTeams(String trainerId);
   Future<Result<UserEntity>> getLoggedInUser();
+  Future<Result<void>> logout();
 }

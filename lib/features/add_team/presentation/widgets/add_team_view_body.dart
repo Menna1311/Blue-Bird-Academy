@@ -2,6 +2,7 @@ import 'package:blue_bird/features/add_team/presentation/provider/add_team_form_
 import 'package:blue_bird/utils/color_manager.dart';
 import 'package:blue_bird/utils/strings_manager.dart';
 import 'package:blue_bird/utils/text_styles.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
@@ -27,8 +28,8 @@ class AddTeamViewBody extends StatelessWidget {
             listener: (context, state) {
               if (state is AddTeamSuccess) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      content: Text(StringsManager.teamAddedSuccessfully)),
+                  SnackBar(
+                      content: Text(StringsManager.teamAddedSuccessfully.tr())),
                 );
                 Navigator.pushReplacementNamed(context, AppRoutes.mainLayout);
               } else if (state is AddTeamFailure) {
@@ -44,11 +45,11 @@ class AddTeamViewBody extends StatelessWidget {
                     _buildHeader(context),
                     const SizedBox(height: 20),
                     TeamComponent(
-                      title: StringsManager.teamName,
+                      title: StringsManager.teamName.tr(),
                       widget: TextField(
                         controller: provider.teamNameController,
                         decoration: InputDecoration(
-                          hintText: StringsManager.teamName,
+                          hintText: StringsManager.teamName.tr(),
                           filled: true,
                           fillColor: const Color(0xffF8F9FD),
                           border: OutlineInputBorder(
@@ -60,18 +61,18 @@ class AddTeamViewBody extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    const TeamComponent(
-                      title: StringsManager.ageCategory,
+                    TeamComponent(
+                      title: StringsManager.ageCategory.tr(),
                       widget: AgeCategoryDropdown(),
                     ),
                     const SizedBox(height: 20),
-                    const TeamComponent(
-                      title: StringsManager.trainingDays,
+                    TeamComponent(
+                      title: StringsManager.trainingDays.tr(),
                       widget: TrainingDaysSelector(),
                     ),
                     const SizedBox(height: 20),
                     TeamComponent(
-                      title: StringsManager.trainingTime,
+                      title: StringsManager.trainingTime.tr(),
                       widget: GestureDetector(
                         onTap: () async {
                           final time = await showTimePicker(
@@ -88,13 +89,13 @@ class AddTeamViewBody extends StatelessWidget {
                           ),
                           child: Text(provider.trainingTime != null
                               ? '${provider.trainingTime!.hour.toString().padLeft(2, '0')}:${provider.trainingTime!.minute.toString().padLeft(2, '0')}'
-                              : StringsManager.selectTrainingTime),
+                              : StringsManager.selectTrainingTime.tr()),
                         ),
                       ),
                     ),
                     const SizedBox(height: 20),
-                    const TeamComponent(
-                      title: StringsManager.addPlayers,
+                    TeamComponent(
+                      title: StringsManager.addPlayers.tr(),
                       widget: AddPlayersCard(),
                     ),
                     const SizedBox(height: 30),
@@ -110,7 +111,7 @@ class AddTeamViewBody extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(12)),
                             ),
                             child: Text(
-                              StringsManager.addTeam,
+                              StringsManager.addTeam.tr(),
                               style: AppTextStyles.font18W400White(context),
                             ),
                           ),
@@ -128,7 +129,7 @@ class AddTeamViewBody extends StatelessWidget {
   void _submitTeam(BuildContext context, AddTeamFormProvider provider) {
     if (!provider.isValid()) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text(StringsManager.pleaseCompleteAllFields)),
+        SnackBar(content: Text(StringsManager.pleaseCompleteAllFields.tr())),
       );
       return;
     }
@@ -170,8 +171,8 @@ class AddTeamViewBody extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
-              StringsManager.addNewTeam,
+            Text(
+              StringsManager.addNewTeam.tr(),
               style: TextStyle(
                   color: Colors.white,
                   fontSize: 22,

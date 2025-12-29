@@ -25,6 +25,7 @@ class StringsManager {
   static const String totalPlayers = "Total Players";
   static const String tryAgain = "Try again";
   static const String somethingWentWrong = "Something went wrong";
+  static const String profile = "Profile";
 
   // Sessions strings
   static const String sessions = "Sessions";
@@ -50,24 +51,35 @@ class StringsManager {
   static const String addPlayersTitle = 'Add Players';
 
   // Age categories
-  static const List<String> ageCategories = [
-    'Under 6 years',
-    'Under 8 years',
-    'Under 10 years',
-    'Under 12 years',
-    'Under 14 years',
-    'Under 16 years',
-    'Under 18 years',
+  static const List<String> ageCategoriesKeys = [
+    'age_under_6',
+    'age_under_8',
+    'age_under_10',
+    'age_under_12',
+    'age_under_14',
+    'age_under_16',
+    'age_under_18',
   ];
 
-  // Training days
-  static const List<String> trainingDaysList = [
-    'Saturday',
-    'Sunday',
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
+  // Training days keys
+  static const List<String> trainingDaysKeys = [
+    'saturday',
+    'sunday',
+    'monday',
+    'tuesday',
+    'wednesday',
+    'thursday',
+    'friday',
   ];
+
+  static const String attendanceHistory = "Attendance History";
+  static const String noHistoryYet = "No history yet";
+  static const String recordedOn = "Recorded on";
+  static const String attendance = "Attendance";
+  static const String attendancesavedSuccessfully =
+      "Attendance saved successfully!";
+  static const String saveAttendance = "Save Attendance";
+  static const String markAttendance = "Mark Attendance";
+  static const String viewAttendanceHistory = "View Attendance History";
+  static const String forgotPassword = "Forgot Password?";
 }

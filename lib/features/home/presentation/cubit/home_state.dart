@@ -39,10 +39,16 @@ final class SessionsLoaded extends HomeState {
 
 final class TeamsLoading extends HomeState {}
 
-final class TeamsLoaded extends HomeState {
-  final List<TeamEntity> teams;
+class TeamsLoaded extends HomeState {
+  final List<TeamEntity> allTeams;
+  final List<TeamEntity> filteredTeams;
+  final WeekDay? selectedDay;
 
-  TeamsLoaded(this.teams);
+  TeamsLoaded({
+    required this.allTeams,
+    required this.filteredTeams,
+    required this.selectedDay,
+  });
 }
 
 final class TeamsError extends HomeState {

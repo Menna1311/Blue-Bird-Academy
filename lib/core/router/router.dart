@@ -4,6 +4,7 @@ import 'package:blue_bird/features/add_team/presentation/views/add_team_view.dar
 import 'package:blue_bird/features/attendance/presentation/views/attendancea_view.dart';
 import 'package:blue_bird/features/auth/login/presentation/views/login_view.dart';
 import 'package:blue_bird/features/auth/register/presentation/views/register_view.dart';
+import 'package:blue_bird/features/auth/reset_password/presentation/views/reset_password_view.dart';
 import 'package:blue_bird/features/home/presentation/views/home_view.dart';
 import 'package:blue_bird/features/home/presentation/views/sessions_view.dart';
 import 'package:blue_bird/features/intro/onboarding_screen/view/onboarding_screen.dart';
@@ -16,6 +17,10 @@ Route manageRoutes(RouteSettings settings) {
     case AppRoutes.loginScreen:
       return MaterialPageRoute(
         builder: (context) => LoginView(),
+      );
+    case AppRoutes.resetPassword:
+      return MaterialPageRoute(
+        builder: (context) => const ResetPasswordView(),
       );
     case AppRoutes.splashScreen:
       return MaterialPageRoute(

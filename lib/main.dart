@@ -13,31 +13,45 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await EasyLocalization.ensureInitialized();
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
   configureDependencies();
   Bloc.observer = SimpleBlocObserver();
+
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-  runApp(MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => UserProvider()),
-        ChangeNotifierProvider(create: (_) => AddTeamFormProvider()),
+
+  runApp(
+    EasyLocalization(
+      supportedLocales: const [
+        Locale('en'),
+        Locale('ar'),
       ],
-      builder: (context, child) {
-        return child!;
-      },
-      child: DevicePreview(
-        enabled: true,
-        builder: (context) => MyApp(),
-      )));
+      path: 'assets/translations',
+      fallbackLocale: const Locale('en'),
+      startLocale: null,
+      child: MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => UserProvider()),
+          ChangeNotifierProvider(create: (_) => AddTeamFormProvider()),
+        ],
+        child: DevicePreview(
+          enabled: false,
+          builder: (context) => const MyApp(),
+        ),
+      ),
+    ),
+  );
 }
 
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
@@ -57,12 +71,16 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         scaffoldMessengerKey: scaffoldMessengerKey,
         title: 'Blue Bird Academy',
+        locale: context.locale,
+        supportedLocales: context.supportedLocales,
+        localizationsDelegates: context.localizationDelegates,
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(
-              seedColor: ColorManager.primary,
-              primary: ColorManager.primary,
-              onError: Colors.red,
-              secondary: const Color(0xffA6A6A6)),
+            seedColor: ColorManager.primary,
+            primary: ColorManager.primary,
+            onError: Colors.red,
+            secondary: const Color(0xffA6A6A6),
+          ),
           useMaterial3: true,
         ),
         onGenerateRoute: manageRoutes,

@@ -108,4 +108,18 @@ class FirebaseAuthService implements AuthService {
       return Fail(Exception(e.toString()));
     }
   }
+
+  @override
+  Future<Result<void>> resetPassword({
+    required String email,
+  }) async {
+    try {
+      await _firebaseAuth.sendPasswordResetEmail(email: email);
+      return Success(null);
+    } on FirebaseAuthException catch (e) {
+      return Fail(Exception(e.message ?? 'Reset password failed'));
+    } catch (e) {
+      return Fail(Exception(e.toString()));
+    }
+  }
 }

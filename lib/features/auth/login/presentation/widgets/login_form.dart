@@ -1,9 +1,11 @@
 import 'package:blue_bird/core/responsive_helper/size_helper_extensions.dart';
+import 'package:blue_bird/core/router/app_routes.dart';
 import 'package:blue_bird/core/widgets/custom_textfield.dart';
 import 'package:blue_bird/utils/assets_manager.dart';
 import 'package:blue_bird/utils/color_manager.dart';
 import 'package:blue_bird/utils/strings_manager.dart';
 import 'package:blue_bird/utils/text_styles.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:blue_bird/features/auth/login/presentation/cubit/login_cubit_cubit.dart';
@@ -31,32 +33,44 @@ class LoginForm extends StatelessWidget {
           ),
           SizedBox(height: context.setHeight(20)),
           Text(
-            StringsManager.blueBirdAcademy,
+            StringsManager.blueBirdAcademy.tr(),
             style: AppTextStyles.font24W500White(context)
                 .copyWith(fontSize: context.setSp(24)),
           ),
           SizedBox(height: context.setHeight(4)),
           Text(
-            StringsManager.coachesAttendanceSystem,
+            StringsManager.coachesAttendanceSystem.tr(),
             style: AppTextStyles.font14W800White(context)
                 .copyWith(fontSize: context.setSp(14)),
           ),
           SizedBox(height: context.setHeight(20)),
           Text(
-            StringsManager.login,
+            StringsManager.login.tr(),
             style: AppTextStyles.font24W800White(context)
                 .copyWith(fontSize: context.setSp(24)),
           ),
           SizedBox(height: context.setHeight(16)),
           CustomTextField(
-            hint: StringsManager.coachEmail,
+            hint: StringsManager.coachEmail.tr(),
             onChange: cubit.updateEmail,
           ),
           SizedBox(height: context.setHeight(10)),
           CustomTextField(
-            hint: StringsManager.coachPassword,
+            hint: StringsManager.coachPassword.tr(),
             obscureText: true,
             onChange: cubit.updatePassword,
+          ),
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, AppRoutes.resetPassword);
+                },
+                child: Text(
+                  StringsManager.forgotPassword.tr(),
+                  style: AppTextStyles.font18W400White(context)
+                      .copyWith(fontSize: context.setSp(16)),
+                )),
           ),
           SizedBox(height: context.setHeight(20)),
           SizedBox(
@@ -74,7 +88,7 @@ class LoginForm extends StatelessWidget {
               ),
               onPressed: cubit.submit,
               child: Text(
-                StringsManager.login,
+                StringsManager.login.tr(),
                 style: AppTextStyles.font18W400primary(context)
                     .copyWith(fontSize: context.setSp(18)),
               ),

@@ -8,4 +8,5 @@ class AppRoutes {
   static const String attendanceScreen = 'attendance';
   static const String onBoardingScreen = 'onboarding';
   static const String splashScreen = 'splash';
+  static const String resetPassword = 'resetPassword';
 }

@@ -58,6 +58,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i850.AuthService>(() => _i766.FirebaseAuthService());
     gh.factory<_i518.AttendanceCubit>(
         () => _i518.AttendanceCubit(gh<_i550.AttendanceRepo>()));
+    gh.factory<_i130.HomeRepo>(() => _i647.HomeRepoImpl(
+          gh<_i8.DatabaseService>(),
+          gh<_i850.AuthService>(),
+          gh<_i142.SecureStorageService>(),
+        ));
+    gh.factory<_i9.HomeCubit>(() => _i9.HomeCubit(gh<_i130.HomeRepo>()));
     gh.factory<_i253.LoginRepo>(() => _i568.LoginRepoImpl(
           gh<_i850.AuthService>(),
           gh<_i142.SecureStorageService>(),
@@ -73,13 +79,8 @@ extension GetItInjectableX on _i174.GetIt {
         ));
     gh.factory<_i326.AddTeamCubit>(
         () => _i326.AddTeamCubit(gh<_i749.AddTeamRepo>()));
-    gh.factory<_i130.HomeRepo>(() => _i647.HomeRepoImpl(
-          gh<_i8.DatabaseService>(),
-          gh<_i850.AuthService>(),
-        ));
     gh.factory<_i805.RegisterCubit>(
         () => _i805.RegisterCubit(gh<_i369.RegisterRepo>()));
-    gh.factory<_i9.HomeCubit>(() => _i9.HomeCubit(gh<_i130.HomeRepo>()));
     return this;
   }
 }
