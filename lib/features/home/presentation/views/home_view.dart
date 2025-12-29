@@ -1,5 +1,6 @@
 import 'package:blue_bird/core/di/di.dart';
 import 'package:blue_bird/core/router/app_routes.dart';
+import 'package:blue_bird/core/week_days.dart';
 import 'package:blue_bird/features/add_team/domain/entities/team_entity.dart';
 import 'package:blue_bird/features/auth/login/domain/entities/user_entity.dart';
 import 'package:blue_bird/features/home/presentation/cubit/home_cubit.dart';
@@ -67,7 +68,11 @@ class _HomeView extends StatelessWidget {
         }
 
         if (state is TeamsLoaded) {
-          return _buildContent(context, user!, state.teams);
+          return _buildContent(
+            context,
+            user!,
+            state.filteredTeams,
+          );
         }
 
         return _buildLoading();
@@ -108,45 +113,30 @@ class _HomeView extends StatelessWidget {
     List<TeamEntity> teams,
   ) {
     return SingleChildScrollView(
-      // physics: const BouncingScrollPhysics(),
       child: Column(
         children: [
           _buildHeader(context, user, teams.length),
+          const SizedBox(height: 12),
+
+          // 🔥 DAY FILTER
+          const WeekDaysFilter(),
+
           const SizedBox(height: 20),
+
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Column(
-              children: teams.asMap().entries.map((entry) {
-                final index = entry.key;
-                final team = entry.value;
-
-                return TweenAnimationBuilder<Offset>(
-                  tween: Tween(
-                    begin: const Offset(0, 0.2),
-                    end: Offset.zero,
-                  ),
-                  duration: Duration(milliseconds: 300 + index * 100),
-                  curve: Curves.easeOut,
-                  builder: (_, offset, child) {
-                    return Transform.translate(
-                      offset: offset * 100,
-                      child: Opacity(
-                        opacity: 1 - offset.dy,
-                        child: child,
-                      ),
-                    );
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: TeamCard(
-                      teamName: team.teamName,
-                      teamAge: team.teamAgeCategory,
-                      numberOfPlayers: team.players.length,
-                      trainingDays: team.trainingDays,
-                      teamId: team.id,
-                      trainerId: user.id,
-                      players: team.players,
-                    ),
+              children: teams.map((team) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: TeamCard(
+                    teamName: team.teamName,
+                    teamAge: team.teamAgeCategory,
+                    numberOfPlayers: team.players.length,
+                    trainingDays: team.trainingDays,
+                    teamId: team.id,
+                    trainerId: user.id,
+                    players: team.players,
                   ),
                 );
               }).toList(),
@@ -332,6 +322,55 @@ class _AnimatedStatItem extends StatelessWidget {
               ),
             ),
           ],
+        );
+      },
+    );
+  }
+}
+
+class WeekDaysFilter extends StatelessWidget {
+  const WeekDaysFilter({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<HomeCubit, HomeState>(
+      buildWhen: (_, current) => current is TeamsLoaded,
+      builder: (context, state) {
+        if (state is! TeamsLoaded) {
+          return const SizedBox.shrink();
+        }
+
+        const days = WeekDay.values;
+
+        return SizedBox(
+          height: 46,
+          child: ListView.separated(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            scrollDirection: Axis.horizontal,
+            itemCount: days.length + 1,
+            separatorBuilder: (_, __) => const SizedBox(width: 8),
+            itemBuilder: (context, index) {
+              final isAll = index == 0;
+              final day = isAll ? null : days[index - 1];
+              final isSelected = state.selectedDay == day;
+
+              return ChoiceChip(
+                label: Text(
+                  isAll ? 'all'.tr() : day!.label(),
+                ),
+                selected: isSelected,
+                onSelected: (_) {
+                  context.read<HomeCubit>().filterByDay(day);
+                },
+                selectedColor: ColorManager.primary,
+                backgroundColor: Colors.grey.shade200,
+                labelStyle: TextStyle(
+                  color: isSelected ? Colors.white : Colors.black,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                ),
+              );
+            },
+          ),
         );
       },
     );

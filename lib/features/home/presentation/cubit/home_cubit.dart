@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:blue_bird/core/common/result.dart';
+import 'package:blue_bird/core/week_days.dart';
 import 'package:blue_bird/features/add_team/domain/entities/team_entity.dart';
 import 'package:blue_bird/features/auth/login/domain/entities/user_entity.dart';
 
@@ -18,7 +19,8 @@ class HomeCubit extends Cubit<HomeState> {
   // Add user property
   UserEntity? _currentUser;
   UserEntity? get currentUser => _currentUser;
-
+  List<TeamEntity> _allTeams = [];
+  WeekDay? _selectedDay;
   // Add method to get current user
   Future<void> getCurrentUser() async {
     emit(UserLoading());
@@ -65,9 +67,61 @@ class HomeCubit extends Cubit<HomeState> {
     final result = await _homeRepo.getTeams(trainerId);
 
     if (result is Success<List<TeamEntity>>) {
-      emit(TeamsLoaded(result.data!));
+      _allTeams = result.data!;
+
+      // 🔥 Auto select TODAY
+      _selectedDay = WeekDayX.fromDateTime(DateTime.now());
+
+      emit(
+        TeamsLoaded(
+          allTeams: _allTeams,
+          filteredTeams: _filterTeamsByDay(_selectedDay!),
+          selectedDay: _selectedDay,
+        ),
+      );
     } else if (result is Fail<List<TeamEntity>>) {
       emit(TeamsError(result.exception!));
+    }
+  }
+
+  // ================= FILTER =================
+
+  void filterByDay(WeekDay? day) {
+    _selectedDay = day;
+
+    emit(
+      TeamsLoaded(
+        allTeams: _allTeams,
+        filteredTeams: day == null ? _allTeams : _filterTeamsByDay(day),
+        selectedDay: _selectedDay,
+      ),
+    );
+  }
+
+  List<TeamEntity> _filterTeamsByDay(WeekDay day) {
+    return _allTeams
+        .where((team) => team.trainingDays.contains(day.key))
+        .toList();
+  }
+
+  String _getTodayName() {
+    switch (DateTime.now().weekday) {
+      case DateTime.monday:
+        return 'Monday';
+      case DateTime.tuesday:
+        return 'Tuesday';
+      case DateTime.wednesday:
+        return 'Wednesday';
+      case DateTime.thursday:
+        return 'Thursday';
+      case DateTime.friday:
+        return 'Friday';
+      case DateTime.saturday:
+        return 'Saturday';
+      case DateTime.sunday:
+        return 'Sunday';
+      default:
+        return 'Monday';
     }
   }
 
