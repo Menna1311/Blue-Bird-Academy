@@ -22,6 +22,7 @@ class TeamCard extends StatelessWidget {
   final String teamId;
   final String trainerId;
   final List<PlayerEntity> players;
+
   @override
   Widget build(BuildContext context) {
     final formattedDays = trainingDays.join(', ');
@@ -31,19 +32,29 @@ class TeamCard extends StatelessWidget {
         Navigator.pushNamed(context, AppRoutes.sessionScreen, arguments: {
           'trainerId': trainerId,
           'teamId': teamId,
-          'players': players
+          'players': players,
         });
       },
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          boxShadow: const [
+          gradient: const LinearGradient(
+            colors: [ColorManager.primary, ColorManager.lightPrimary],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          boxShadow: [
             BoxShadow(
+              color: ColorManager.primary.withOpacity(0.4),
+              blurRadius: 16,
+              spreadRadius: 1,
+              offset: const Offset(0, 4),
+            ),
+            const BoxShadow(
               color: Colors.black12,
-              blurRadius: 6,
-              offset: Offset(0, 3),
+              blurRadius: 8,
+              offset: Offset(0, 4),
             ),
           ],
         ),
@@ -59,12 +70,13 @@ class TeamCard extends StatelessWidget {
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
+                      color: Colors.white,
                     ),
                   ),
                   Text(
                     '$teamAge years',
                     style: const TextStyle(
-                      color: Colors.black,
+                      color: Colors.white70,
                       fontSize: 14,
                     ),
                   ),
@@ -72,12 +84,14 @@ class TeamCard extends StatelessWidget {
                   Row(
                     children: [
                       const Icon(Icons.calendar_today,
-                          size: 16, color: Colors.grey),
+                          size: 16, color: Colors.white70),
                       const SizedBox(width: 4),
                       Text(
                         formattedDays,
-                        style:
-                            const TextStyle(color: Colors.grey, fontSize: 13),
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 13,
+                        ),
                       ),
                     ],
                   ),
@@ -85,13 +99,32 @@ class TeamCard extends StatelessWidget {
               ),
             ),
 
-            // Player count
+            // Player count with gradient circle
             Column(
               children: [
-                const Icon(Icons.group, color: ColorManager.primary),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: const LinearGradient(
+                      colors: [ColorManager.primary, ColorManager.lightPrimary],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: ColorManager.primary.withOpacity(0.4),
+                        blurRadius: 8,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: const Icon(Icons.group, color: Colors.white),
+                ),
+                const SizedBox(height: 4),
                 Text(
                   '$numberOfPlayers players',
-                  style: const TextStyle(fontSize: 13, color: Colors.black54),
+                  style: const TextStyle(fontSize: 13, color: Colors.white),
                 ),
               ],
             ),
