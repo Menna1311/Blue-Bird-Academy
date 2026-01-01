@@ -29,7 +29,7 @@ class TeamCard extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
-        Navigator.pushNamed(context, AppRoutes.sessionScreen, arguments: {
+        Navigator.pushNamed(context, AppRoutes.attendanceScreen, arguments: {
           'trainerId': trainerId,
           'teamId': teamId,
           'players': players,

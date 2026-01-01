@@ -126,20 +126,39 @@ class _HomeView extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Column(
-              children: teams.map((team) {
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: TeamCard(
-                    teamName: team.teamName,
-                    teamAge: team.teamAgeCategory,
-                    numberOfPlayers: team.players.length,
-                    trainingDays: team.trainingDays,
-                    teamId: team.id,
-                    trainerId: user.id,
-                    players: team.players,
+              children: List.generate(teams.length, (index) {
+                final team = teams[index];
+
+                return TweenAnimationBuilder<Offset>(
+                  tween: Tween(
+                    begin: const Offset(0, 0.2),
+                    end: Offset.zero,
+                  ),
+                  duration: Duration(milliseconds: 300 + index * 100),
+                  curve: Curves.easeOut,
+                  builder: (_, offset, child) {
+                    return Transform.translate(
+                      offset: offset * 100,
+                      child: Opacity(
+                        opacity: 1 - offset.dy,
+                        child: child,
+                      ),
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: TeamCard(
+                      teamName: team.teamName,
+                      teamAge: team.teamAgeCategory,
+                      numberOfPlayers: team.players.length,
+                      trainingDays: team.trainingDays,
+                      teamId: team.id,
+                      trainerId: user.id,
+                      players: team.players,
+                    ),
                   ),
                 );
-              }).toList(),
+              }),
             ),
           ),
         ],

@@ -3,8 +3,12 @@ import 'package:blue_bird/features/attendance/data/models/attendance_history_mod
 import 'package:blue_bird/features/attendance/data/models/attendance_model.dart';
 
 abstract class AttendanceRepo {
-  Future<Result<bool>> markAttendance(String trainerId, String teamId,
-      String sessionId, List<AttendanceModel> attendanceList);
+  Future<Result<bool>> markAttendance(
+      String trainerId, String teamId, List<AttendanceModel> attendanceList);
   Future<Result<List<AttendanceHistoryModel>>> getAttendanceHistory(
       String trainerId, String teamId);
+  Future<Result<bool>> isAttendanceMarkedToday(
+    String trainerId,
+    String teamId,
+  );
 }

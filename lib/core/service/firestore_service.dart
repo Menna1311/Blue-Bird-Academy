@@ -60,7 +60,6 @@ class FirestoreService implements DatabaseService {
           .collection('teams')
           .doc();
 
-      // Save team without player IDs
       await teamRef.set({
         ...team.toMap(),
         'id': teamRef.id,
@@ -145,26 +144,86 @@ class FirestoreService implements DatabaseService {
   Future<Result<bool>> markAttendance(
     String trainerId,
     String teamId,
-    String sessionId,
     List<AttendanceModel> attendanceList,
   ) async {
-    final attendanceCollection = firestore
+    final teamRef = firestore
         .collection('trainers')
         .doc(trainerId)
         .collection('teams')
-        .doc(teamId)
-        .collection('sessions')
-        .doc(sessionId)
-        .collection('attendance_records');
+        .doc(teamId);
 
-    final attendanceData = attendanceList.map((a) => a.toMap()).toList();
+    final attendanceRef = teamRef.collection('attendance_records');
 
-    await attendanceCollection.add({
-      'players': attendanceData,
-      'takenAt': FieldValue.serverTimestamp(),
-    });
+    try {
+      await firestore.runTransaction((transaction) async {
+        final teamSnapshot = await transaction.get(teamRef);
+        final data = teamSnapshot.data() ?? {};
 
-    return Success(true);
+        final today = startOfDay(DateTime.now());
+        final Timestamp? savedDay = data['attendanceDay'];
+
+        if (data['attendanceMarked'] == true &&
+            savedDay != null &&
+            savedDay.toDate().isAtSameMomentAs(today)) {
+          throw Exception('Attendance already marked today');
+        }
+
+        final attendanceData = attendanceList.map((a) => a.toMap()).toList();
+
+        transaction.set(attendanceRef.doc(), {
+          'players': attendanceData,
+          'takenAt': FieldValue.serverTimestamp(),
+        });
+
+        transaction.update(teamRef, {
+          'attendanceMarked': true,
+          'attendanceDay': Timestamp.fromDate(today),
+          'lastAttendanceAt': FieldValue.serverTimestamp(),
+        });
+      });
+
+      return Success(true);
+    } catch (e) {
+      return Fail(Exception(e.toString()));
+    }
+  }
+
+  Future<Result<bool>> isAttendanceMarkedToday(
+    String trainerId,
+    String teamId,
+  ) async {
+    try {
+      final doc = await firestore
+          .collection('trainers')
+          .doc(trainerId)
+          .collection('teams')
+          .doc(teamId)
+          .get();
+
+      final data = doc.data();
+      if (data == null) return Success(false);
+
+      final bool marked = data['attendanceMarked'] ?? false;
+      final Timestamp? savedDay = data['attendanceDay'];
+
+      final today = startOfDay(DateTime.now());
+
+      if (!marked || savedDay == null) {
+        return Success(false);
+      }
+
+      if (!savedDay.toDate().isAtSameMomentAs(today)) {
+        /// 🔁 AUTO RESET
+        await doc.reference.update({
+          'attendanceMarked': false,
+        });
+        return Success(false);
+      }
+
+      return Success(true);
+    } catch (e) {
+      return Fail(Exception(e.toString()));
+    }
   }
 
   @override
@@ -263,5 +322,9 @@ class FirestoreService implements DatabaseService {
     } catch (e) {
       return Fail(Exception(e.toString()));
     }
+  }
+
+  DateTime startOfDay(DateTime date) {
+    return DateTime(date.year, date.month, date.day);
   }
 }

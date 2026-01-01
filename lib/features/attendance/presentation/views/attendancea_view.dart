@@ -2,6 +2,7 @@ import 'package:blue_bird/features/add_team/domain/entities/player_entity.dart';
 import 'package:blue_bird/features/attendance/data/models/attendance_model.dart';
 import 'package:blue_bird/features/attendance/presentation/cubit/attendance_cubit.dart';
 import 'package:blue_bird/features/attendance/presentation/widgets/player_attendance_card.dart';
+import 'package:blue_bird/utils/assets_manager.dart';
 import 'package:blue_bird/utils/color_manager.dart';
 import 'package:blue_bird/utils/strings_manager.dart';
 import 'package:blue_bird/utils/values_manager.dart';
@@ -9,19 +10,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:provider/provider.dart';
-
-class AttendanceUiState extends ChangeNotifier {
-  List<String?> selectedStatus;
-
-  AttendanceUiState(int playerCount)
-      : selectedStatus = List.generate(playerCount, (_) => null);
-
-  void updateStatus(int index, String status) {
-    selectedStatus[index] = status;
-    notifyListeners();
-  }
-}
+import 'package:lottie/lottie.dart';
 
 class AttendanceScreen extends StatelessWidget {
   final Map<String, dynamic>? arguments;
@@ -32,35 +21,21 @@ class AttendanceScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final trainerId = arguments?['trainerId'];
     final teamId = arguments?['teamId'];
-    final sessionId = arguments?['sessionId'];
     final players = arguments?['players'] as List<PlayerEntity>?;
 
-    if (trainerId == null ||
-        teamId == null ||
-        sessionId == null ||
-        players == null) {
-      return Scaffold(
-        appBar: AppBar(title: const Text("Attendance")),
-        body: const Center(child: Text("Missing parameters")),
+    if (trainerId == null || teamId == null || players == null) {
+      return const Scaffold(
+        body: Center(child: Text('Missing parameters')),
       );
     }
 
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(
-          create: (_) => AttendanceUiState(players.length),
-        ),
-        BlocProvider(
-          create: (_) => GetIt.I<AttendanceCubit>(),
-        ),
-      ],
-      child: Scaffold(
-        body: AttendanceViewBody(
-          trainerId: trainerId,
-          teamId: teamId,
-          sessionId: sessionId,
-          players: players,
-        ),
+    return BlocProvider(
+      create: (_) => GetIt.I<AttendanceCubit>()
+        ..initAttendance(trainerId, teamId, players),
+      child: AttendanceViewBody(
+        trainerId: trainerId,
+        teamId: teamId,
+        players: players,
       ),
     );
   }
@@ -69,47 +44,67 @@ class AttendanceScreen extends StatelessWidget {
 class AttendanceViewBody extends StatelessWidget {
   final String trainerId;
   final String teamId;
-  final String sessionId;
   final List<PlayerEntity> players;
 
   const AttendanceViewBody({
     super.key,
     required this.trainerId,
     required this.teamId,
-    required this.sessionId,
     required this.players,
   });
 
   Widget _buildHeader(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+      padding: const EdgeInsets.fromLTRB(20, 50, 20, 30),
       decoration: const BoxDecoration(
-        color: ColorManager.primary,
+        gradient: LinearGradient(
+          colors: [
+            ColorManager.primary,
+            ColorManager.lightPrimary,
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
         borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(40),
-          bottomRight: Radius.circular(40),
+          bottomLeft: Radius.circular(28),
+          bottomRight: Radius.circular(28),
         ),
       ),
-      child: SafeArea(
-        bottom: false,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              StringsManager.attendance.tr(),
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            StringsManager.attendance.tr(),
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
             ),
-            IconButton(
-              onPressed: () => Navigator.pop(context),
-              icon: const Icon(Icons.close, color: Colors.white),
-            ),
-          ],
-        ),
+          ),
+          InkWell(
+            borderRadius: BorderRadius.circular(30),
+            onTap: () => Navigator.pop(context),
+            child: const Icon(Icons.close, color: Colors.white, size: 26),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLoading() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Lottie.asset(
+            LottieAssets.loading,
+            width: 180,
+          ),
+          Text(
+            StringsManager.loading.tr(),
+          )
+        ],
       ),
     );
   }
@@ -117,14 +112,14 @@ class AttendanceViewBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<AttendanceCubit>();
-    final uiState = context.watch<AttendanceUiState>();
 
     return BlocConsumer<AttendanceCubit, AttendanceState>(
       listener: (context, state) {
         if (state is AttendanceSuccess) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-                content: Text(StringsManager.attendancesavedSuccessfully.tr())),
+              content: Text(StringsManager.attendancesavedSuccessfully.tr()),
+            ),
           );
         } else if (state is AttendanceError) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -133,83 +128,133 @@ class AttendanceViewBody extends StatelessWidget {
         }
       },
       builder: (context, state) {
-        return Column(
-          children: [
-            _buildHeader(context),
-            Expanded(
-              child: Container(
-                color: Colors.grey.shade50,
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: ListView.builder(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: AppPadding.p8,
-                        ),
-                        itemCount: players.length,
-                        itemBuilder: (context, index) {
-                          final player = players[index];
+        if (state is AttendanceLoading) {
+          return Scaffold(body: _buildLoading());
+        }
 
-                          return PlayerAttendanceCard(
-                            playerName: player.name,
-                            jerseyNumber: player.jerseyNumber,
-                            selectedStatus: uiState.selectedStatus[index] ?? '',
-                            onStatusChanged: (status) {
-                              uiState.updateStatus(index, status);
-                            },
-                          );
-                        },
-                      ),
+        if (state is AttendanceAlreadyMarked) {
+          return Scaffold(
+            body: Column(
+              children: [
+                _buildHeader(context),
+                Expanded(
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Lottie.asset(
+                          LottieAssets.done,
+                          width: 180,
+                        ),
+                        const Text(
+                          'Attendance already marked',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.red,
+                          ),
+                        ),
+                      ],
                     ),
-                    Container(
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        return Scaffold(
+          body: Stack(
+            children: [
+              Column(
+                children: [
+                  _buildHeader(context),
+                  Expanded(
+                    child: ListView.builder(
                       padding: const EdgeInsets.symmetric(
-                        vertical: AppPadding.p16,
+                        vertical: AppPadding.p12,
                         horizontal: AppPadding.p16,
                       ),
+                      itemCount: players.length,
+                      itemBuilder: (context, index) {
+                        final player = players[index];
+                        final selectedStatus =
+                            cubit.selectedStatuses[player.id] ?? '';
+
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: PlayerAttendanceCard(
+                            playerName: player.name,
+                            jerseyNumber: player.jerseyNumber,
+                            selectedStatus: selectedStatus,
+                            onStatusChanged: (status) {
+                              cubit.updateStatus(player.id, status);
+                            },
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(AppPadding.p16),
+                    child: Container(
+                      width: double.infinity,
+                      height: 52,
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        gradient: const LinearGradient(
+                          colors: [
+                            ColorManager.primary,
+                            ColorManager.lightPrimary,
+                          ],
+                        ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            blurRadius: AppSize.s4,
-                            offset: const Offset(0, -AppSize.s2),
+                            color: ColorManager.primary.withOpacity(0.4),
+                            blurRadius: 14,
+                            offset: const Offset(0, 6),
                           ),
                         ],
                       ),
-                      child: SizedBox(
-                        width: double.infinity,
-                        child: state is AttendanceLoading
-                            ? const CircularProgressIndicator()
-                            : ElevatedButton(
-                                onPressed: () {
-                                  final attendanceList =
-                                      players.asMap().entries.map((entry) {
-                                    final index = entry.key;
-                                    final player = entry.value;
-                                    return AttendanceModel(
-                                      playerId: player.id,
-                                      playerName: player.name,
-                                      status: uiState.selectedStatus[index] ??
-                                          'غائب',
-                                    );
-                                  }).toList();
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        onPressed: () {
+                          final attendanceList = players.map((player) {
+                            return AttendanceModel(
+                              playerId: player.id,
+                              playerName: player.name,
+                              status:
+                                  cubit.selectedStatuses[player.id] ?? 'غائب',
+                            );
+                          }).toList();
 
-                                  cubit.markAttendance(
-                                    trainerId,
-                                    teamId,
-                                    sessionId,
-                                    attendanceList,
-                                  );
-                                },
-                                child: Text(StringsManager.saveAttendance.tr()),
-                              ),
+                          cubit.markAttendance(
+                            trainerId,
+                            teamId,
+                            attendanceList,
+                          );
+                        },
+                        child: Text(
+                          StringsManager.saveAttendance.tr(),
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
                       ),
-                    )
-                  ],
-                ),
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ],
+            ],
+          ),
         );
       },
     );

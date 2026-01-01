@@ -29,7 +29,7 @@ class LottieAssets {
   LottieAssets._();
 
   static const String _basePath = "assets/lotti/";
-
+  static const String done = "${_basePath}Done.json";
   static const String loading = "${_basePath}Footballer_loading.json";
   static const String error = "${_basePath}wrong.json";
   static const String comingSoon = "${_basePath}coming_soon.json";

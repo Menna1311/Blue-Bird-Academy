@@ -9,6 +9,8 @@ final class AttendanceLoading extends AttendanceState {}
 
 final class AttendanceSuccess extends AttendanceState {}
 
+class AttendanceAlreadyMarked extends AttendanceState {}
+
 final class AttendanceError extends AttendanceState {
   final String message;
   AttendanceError({required this.message});
@@ -35,3 +37,5 @@ class AttendanceHistoryError extends AttendanceState {
   final String message;
   AttendanceHistoryError(this.message);
 }
+
+class AttendanceReady extends AttendanceState {}
