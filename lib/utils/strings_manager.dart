@@ -26,7 +26,11 @@ class StringsManager {
   static const String tryAgain = "Try again";
   static const String somethingWentWrong = "Something went wrong";
   static const String profile = "Profile";
-
+  static const String present = "Present";
+  static const String absent = "Absent";
+  static const String late = "Late";
+  static const String unknown = "Unknown";
+  static const String noTeamsYet = "No Teams Yet";
   // Sessions strings
   static const String sessions = "Sessions";
   static const String noSessionsYet = "No sessions yet";

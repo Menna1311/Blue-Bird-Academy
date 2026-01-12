@@ -2,6 +2,7 @@ import 'package:blue_bird/core/di/di.dart';
 import 'package:blue_bird/core/widgets/custom_textfield.dart';
 import 'package:blue_bird/features/auth/reset_password/presentation/cubit/reset_password_cubit.dart';
 import 'package:blue_bird/utils/color_manager.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
@@ -29,7 +30,7 @@ class ResetPasswordView extends StatelessWidget {
                 width: MediaQuery.of(context).size.width * 0.85,
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: ColorManager.lightPrimary,
                   borderRadius: BorderRadius.circular(18),
                   boxShadow: [
                     BoxShadow(
@@ -42,28 +43,36 @@ class ResetPasswordView extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    Row(children: [
+                      IconButton(
+                        icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      )
+                    ]),
                     const Icon(
                       Icons.lock_reset_rounded,
                       size: 46,
                       color: ColorManager.primary,
                     ),
                     const SizedBox(height: 16),
-                    const Text(
-                      'Reset Password',
+                    Text(
+                      'Reset Password'.tr(),
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
-                      'Enter your email to receive a reset link',
+                    Text(
+                      'Enter your email to receive a reset link'.tr(),
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.grey),
+                      style: TextStyle(color: Colors.black),
                     ),
                     const SizedBox(height: 24),
                     CustomTextField(
-                      hint: 'Enter your email',
+                      hint: 'Enter your email'.tr(),
                       controller: controller,
                     ),
                     const SizedBox(height: 24),
@@ -98,8 +107,8 @@ class ResetPasswordView extends StatelessWidget {
                             ? const CircularProgressIndicator(
                                 color: Colors.white,
                               )
-                            : const Text(
-                                'Send Reset Link',
+                            : Text(
+                                'Send Reset Link'.tr(),
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
@@ -144,16 +153,16 @@ class _SuccessView extends StatelessWidget {
             height: 160,
           ),
           const SizedBox(height: 16),
-          const Text(
-            'Check your email',
+          Text(
+            'Check your email'.tr(),
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
-            'We’ve sent you a link to reset your password.',
+          Text(
+            'We’ve sent you a link to reset your password.'.tr(),
             textAlign: TextAlign.center,
             style: TextStyle(color: Colors.grey),
           ),

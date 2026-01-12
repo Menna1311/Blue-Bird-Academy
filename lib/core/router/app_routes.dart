@@ -9,4 +9,6 @@ class AppRoutes {
   static const String onBoardingScreen = 'onboarding';
   static const String splashScreen = 'splash';
   static const String resetPassword = 'resetPassword';
+  static const String history = 'history';
+  static const String historyDetails = 'historyDetails';
 }

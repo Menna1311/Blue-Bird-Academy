@@ -1,5 +1,5 @@
 class AttendanceModel {
-  final String playerId;
+  final String? playerId;
   final String playerName;
   final String status;
 
@@ -17,7 +17,7 @@ class AttendanceModel {
 
   factory AttendanceModel.fromMap(Map<String, dynamic> map) {
     return AttendanceModel(
-      playerId: map['playerId'] ?? '',
+      playerId: map['playerId'],
       playerName: map['playerName'] ?? '',
       status: map['status'] ?? 'غائب',
     );

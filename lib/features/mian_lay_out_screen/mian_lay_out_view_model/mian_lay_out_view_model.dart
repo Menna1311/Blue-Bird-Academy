@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:blue_bird/features/attendance/presentation/views/attendance_histoy_view.dart';
 import 'package:blue_bird/features/coming_soon/coming_seen_screen.dart';
 import 'package:blue_bird/features/home/presentation/views/home_view.dart';
 import 'package:blue_bird/utils/strings_manager.dart';
@@ -40,6 +41,14 @@ class MainLayoutViewModel extends ChangeNotifier {
           style: AppTextStyles.font14W800White(context),
         ),
         screen: const ComingSeenScreen(),
+      ),
+      TabItem(
+        icon: SVGAssets.history,
+        label: Text(
+          StringsManager.history.tr(),
+          style: AppTextStyles.font14W800White(context),
+        ),
+        screen: AttendanceHistoryTeamsScreen(),
       ),
       // TabItem(
       //   icon: SVGAssets.profile,

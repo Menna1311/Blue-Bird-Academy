@@ -46,7 +46,7 @@ Future<void> main() async {
           ChangeNotifierProvider(create: (_) => AddTeamFormProvider()),
         ],
         child: DevicePreview(
-          enabled: false,
+          enabled: true,
           builder: (context) => const MyApp(),
         ),
       ),

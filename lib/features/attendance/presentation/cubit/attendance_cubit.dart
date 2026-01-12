@@ -1,11 +1,12 @@
 import 'package:bloc/bloc.dart';
 import 'package:blue_bird/core/common/result.dart';
+import 'package:blue_bird/features/add_team/data/models/team_model.dart';
 import 'package:blue_bird/features/add_team/domain/entities/player_entity.dart';
 import 'package:blue_bird/features/attendance/data/models/attendance_history_model.dart';
 import 'package:blue_bird/features/attendance/data/models/attendance_model.dart';
 import 'package:blue_bird/features/attendance/domain/repos/attendance_repo.dart';
+import 'package:blue_bird/features/auth/login/domain/entities/user_entity.dart';
 import 'package:injectable/injectable.dart';
-import 'package:meta/meta.dart';
 
 part 'attendance_state.dart';
 
@@ -14,8 +15,36 @@ class AttendanceCubit extends Cubit<AttendanceState> {
   AttendanceCubit(this._attendanceRepo) : super(AttendanceInitial());
   final AttendanceRepo _attendanceRepo;
 
+  UserEntity? currentUser;
   Map<String, String> selectedStatuses = {};
 
+  // Get current logged in user
+  Future<void> getLoggedInUser() async {
+    emit(AttendanceUserLoading());
+    final result = await _attendanceRepo.getLoggedInUser();
+    switch (result) {
+      case Success<UserEntity>():
+        currentUser = result.data;
+        emit(AttendanceUserLoaded(result.data!));
+        break;
+      case Fail<UserEntity>():
+        emit(AttendanceUserError(result.exception!.toString()));
+        break;
+    }
+  }
+
+  // Get teams for the current user
+  Future<void> getTeams(String trainerId) async {
+    emit(AttendanceTeamsLoading());
+    final result = await _attendanceRepo.getAllTeams(trainerId);
+    if (result is Success<List<TeamModel>>) {
+      emit(AttendanceTeamsLoaded(result.data!));
+    } else if (result is Fail<List<TeamModel>>) {
+      emit(AttendanceTeamsError(result.exception!.toString()));
+    }
+  }
+
+  // ... rest of the existing methods remain the same
   Future<void> initAttendance(
     String trainerId,
     String teamId,
@@ -72,7 +101,7 @@ class AttendanceCubit extends Cubit<AttendanceState> {
         emit(AttendanceSuccess());
         break;
       case Fail<bool>():
-        emit(AttendanceError(message: result.exception!.toString()));
+        emit(AttendanceError(result.exception!.toString()));
         break;
     }
   }

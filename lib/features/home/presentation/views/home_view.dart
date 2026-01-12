@@ -118,48 +118,68 @@ class _HomeView extends StatelessWidget {
           _buildHeader(context, user, teams.length),
           const SizedBox(height: 12),
 
-          // 🔥 DAY FILTER
+          // 🔥 DAY FILTER (ALWAYS VISIBLE)
           const WeekDaysFilter(),
 
           const SizedBox(height: 20),
 
+          // ✅ EMPTY STATE OR LIST
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              children: List.generate(teams.length, (index) {
-                final team = teams[index];
-
-                return TweenAnimationBuilder<Offset>(
-                  tween: Tween(
-                    begin: const Offset(0, 0.2),
-                    end: Offset.zero,
-                  ),
-                  duration: Duration(milliseconds: 300 + index * 100),
-                  curve: Curves.easeOut,
-                  builder: (_, offset, child) {
-                    return Transform.translate(
-                      offset: offset * 100,
-                      child: Opacity(
-                        opacity: 1 - offset.dy,
-                        child: child,
+            child: teams.isEmpty
+                ? Column(
+                    children: [
+                      const SizedBox(height: 40),
+                      Lottie.asset(
+                        'assets/lotti/Empty List.json',
+                        width: 220,
                       ),
-                    );
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: TeamCard(
-                      teamName: team.teamName,
-                      teamAge: team.teamAgeCategory,
-                      numberOfPlayers: team.players.length,
-                      trainingDays: team.trainingDays,
-                      teamId: team.id,
-                      trainerId: user.id,
-                      players: team.players,
-                    ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'There is no teams yet'.tr(),
+                        style:
+                            Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  color: Colors.grey,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                      ),
+                    ],
+                  )
+                : Column(
+                    children: List.generate(teams.length, (index) {
+                      final team = teams[index];
+
+                      return TweenAnimationBuilder<Offset>(
+                        tween: Tween(
+                          begin: const Offset(0, 0.2),
+                          end: Offset.zero,
+                        ),
+                        duration: Duration(milliseconds: 300 + index * 100),
+                        curve: Curves.easeOut,
+                        builder: (_, offset, child) {
+                          return Transform.translate(
+                            offset: offset * 100,
+                            child: Opacity(
+                              opacity: 1 - offset.dy,
+                              child: child,
+                            ),
+                          );
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: TeamCard(
+                            teamName: team.teamName,
+                            teamAge: team.teamAgeCategory,
+                            numberOfPlayers: team.players.length,
+                            trainingDays: team.trainingDays,
+                            teamId: team.id,
+                            trainerId: user.id,
+                            players: team.players,
+                          ),
+                        ),
+                      );
+                    }),
                   ),
-                );
-              }),
-            ),
           ),
         ],
       ),
@@ -266,11 +286,6 @@ class _HomeView extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      _AnimatedStatItem(
-                        title: StringsManager.totalPlayers.tr(),
-                        value: '0',
-                        textColor: ColorManager.primary,
-                      ),
                       _AnimatedStatItem(
                         title: StringsManager.teams.tr(),
                         value: teamsCount.toString(),

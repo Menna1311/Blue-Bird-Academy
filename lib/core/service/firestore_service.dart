@@ -188,6 +188,7 @@ class FirestoreService implements DatabaseService {
     }
   }
 
+  @override
   Future<Result<bool>> isAttendanceMarkedToday(
     String trainerId,
     String teamId,
@@ -286,35 +287,29 @@ class FirestoreService implements DatabaseService {
     String teamId,
   ) async {
     try {
-      final sessions = await firestore
+      final recordsSnap = await firestore
           .collection('trainers')
           .doc(trainerId)
           .collection('teams')
           .doc(teamId)
-          .collection('sessions')
+          .collection('attendance_records')
+          .orderBy('takenAt', descending: true)
           .get();
 
-      List<AttendanceHistoryModel> history = [];
+      final List<AttendanceHistoryModel> history = [];
 
-      for (var session in sessions.docs) {
-        final recordsSnap = await session.reference
-            .collection('attendance_records')
-            .orderBy('takenAt', descending: true)
-            .get();
+      for (final record in recordsSnap.docs) {
+        final Timestamp takenAt = record['takenAt'];
+        final List players = record['players'];
 
-        for (var record in recordsSnap.docs) {
-          final takenAt = record['takenAt'] as Timestamp;
-          final playersList = record['players'] as List<dynamic>;
-
-          for (var playerData in playersList) {
-            history.add(
-              AttendanceHistoryModel(
-                takenAt: takenAt,
-                playerName: playerData['playerName'],
-                status: playerData['status'],
-              ),
-            );
-          }
+        for (final player in players) {
+          history.add(
+            AttendanceHistoryModel(
+              takenAt: takenAt,
+              playerName: player['playerName'],
+              status: player['status'],
+            ),
+          );
         }
       }
 

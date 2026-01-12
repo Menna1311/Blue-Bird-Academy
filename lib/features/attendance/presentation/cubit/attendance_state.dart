@@ -1,41 +1,81 @@
 part of 'attendance_cubit.dart';
 
-@immutable
-sealed class AttendanceState {}
+abstract class AttendanceState {
+  const AttendanceState();
 
-final class AttendanceInitial extends AttendanceState {}
+  List<Object> get props => [];
+}
 
-final class AttendanceLoading extends AttendanceState {}
+class AttendanceInitial extends AttendanceState {}
 
-final class AttendanceSuccess extends AttendanceState {}
+class AttendanceUserLoading extends AttendanceState {}
+
+class AttendanceUserLoaded extends AttendanceState {
+  final UserEntity user;
+  const AttendanceUserLoaded(this.user);
+
+  @override
+  List<Object> get props => [user];
+}
+
+class AttendanceUserError extends AttendanceState {
+  final String message;
+  const AttendanceUserError(this.message);
+
+  @override
+  List<Object> get props => [message];
+}
+
+class AttendanceTeamsLoading extends AttendanceState {}
+
+class AttendanceTeamsLoaded extends AttendanceState {
+  final List<TeamModel> teams;
+  const AttendanceTeamsLoaded(this.teams);
+
+  @override
+  List<Object> get props => [teams];
+}
+
+class AttendanceTeamsError extends AttendanceState {
+  final String message;
+  const AttendanceTeamsError(this.message);
+
+  @override
+  List<Object> get props => [message];
+}
+
+class AttendanceLoading extends AttendanceState {}
+
+class AttendanceReady extends AttendanceState {}
+
+class AttendanceStatusChanged extends AttendanceState {}
 
 class AttendanceAlreadyMarked extends AttendanceState {}
 
-final class AttendanceError extends AttendanceState {
+class AttendanceSuccess extends AttendanceState {}
+
+class AttendanceError extends AttendanceState {
   final String message;
-  AttendanceError({required this.message});
+  const AttendanceError(this.message);
+
+  @override
+  List<Object> get props => [message];
 }
-
-final class AttendancePlayersLoaded extends AttendanceState {
-  final List<PlayerEntity> players;
-
-  AttendancePlayersLoaded(this.players);
-}
-
-final class AttendanceStatusChanged extends AttendanceState {}
-
-class AttendanceHistoryInitial extends AttendanceState {}
 
 class AttendanceHistoryLoading extends AttendanceState {}
 
 class AttendanceHistoryLoaded extends AttendanceState {
   final List<AttendanceHistoryModel> history;
-  AttendanceHistoryLoaded(this.history);
+  const AttendanceHistoryLoaded(this.history);
+
+  @override
+  List<Object> get props => [history];
 }
 
 class AttendanceHistoryError extends AttendanceState {
   final String message;
-  AttendanceHistoryError(this.message);
-}
+  const AttendanceHistoryError(this.message);
 
-class AttendanceReady extends AttendanceState {}
+  @override
+  List<Object> get props => [message];
+}
