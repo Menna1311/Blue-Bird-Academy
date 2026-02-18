@@ -6,15 +6,20 @@ import 'package:blue_bird/features/auth/login/domain/entities/user_entity.dart';
 
 abstract class AttendanceRepo {
   Future<Result<bool>> markAttendance(
-      String trainerId, String teamId, List<AttendanceModel> attendanceList);
+    String trainerId,
+    String teamId,
+    String sessionId,
+    List<AttendanceModel> attendanceList,
+  );
+
   Future<Result<List<AttendanceHistoryModel>>> getAttendanceHistory(
-      String trainerId, String teamId);
-  Future<Result<bool>> isAttendanceMarkedToday(
     String trainerId,
     String teamId,
   );
+
   Future<Result<List<TeamModel>>> getAllTeams(
     String trainerId,
   );
+
   Future<Result<UserEntity>> getLoggedInUser();
 }

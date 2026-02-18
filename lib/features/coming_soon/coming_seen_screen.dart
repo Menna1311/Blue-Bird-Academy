@@ -1,4 +1,5 @@
 import 'package:blue_bird/core/responsive_helper/size_helper_extensions.dart';
+import 'package:blue_bird/core/router/app_routes.dart';
 import 'package:blue_bird/utils/assets_manager.dart';
 import 'package:blue_bird/utils/color_manager.dart';
 import 'package:blue_bird/utils/text_styles.dart';
@@ -14,6 +15,16 @@ class ComingSeenScreen extends StatelessWidget {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          Row(
+            children: [
+              const SizedBox(width: 20),
+              IconButton(
+                onPressed: () => Navigator.pushReplacementNamed(
+                    context, AppRoutes.mainLayout),
+                icon: const Icon(Icons.arrow_back, color: ColorManager.primary),
+              ),
+            ],
+          ),
           Lottie.asset(
             LottieAssets.comingSoon,
             width: context.setWidth(400),

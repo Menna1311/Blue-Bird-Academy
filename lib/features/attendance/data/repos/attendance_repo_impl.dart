@@ -12,23 +12,28 @@ import 'package:injectable/injectable.dart';
 class AttendanceRepoImpl implements AttendanceRepo {
   final DatabaseService _firestoreService;
   final AuthService _authService;
+
   AttendanceRepoImpl(this._firestoreService, this._authService);
+
   @override
   Future<Result<bool>> markAttendance(
-      String trainerId, String teamId, List<AttendanceModel> attendanceList) {
-    return _firestoreService.markAttendance(trainerId, teamId, attendanceList);
+    String trainerId,
+    String teamId,
+    String sessionId,
+    List<AttendanceModel> attendanceList,
+  ) {
+    return _firestoreService.markAttendance(
+      trainerId,
+      teamId,
+      sessionId,
+      attendanceList,
+    );
   }
 
   @override
   Future<Result<List<AttendanceHistoryModel>>> getAttendanceHistory(
-      String trainerId, String teamId) async {
-    return _firestoreService.getAttendanceHistory(trainerId, teamId);
-  }
-
-  @override
-  Future<Result<bool>> isAttendanceMarkedToday(
       String trainerId, String teamId) {
-    return _firestoreService.isAttendanceMarkedToday(trainerId, teamId);
+    return _firestoreService.getAttendanceHistory(trainerId, teamId);
   }
 
   @override

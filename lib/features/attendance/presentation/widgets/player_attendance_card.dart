@@ -2,7 +2,7 @@ import 'package:blue_bird/core/responsive_helper/size_helper_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class PlayerAttendanceCard extends StatelessWidget {
+class PlayerAttendanceCard extends StatefulWidget {
   final String playerName;
   final String jerseyNumber;
   final String selectedStatus; // 'حاضر', 'غائب', 'متأخر'
@@ -16,6 +16,11 @@ class PlayerAttendanceCard extends StatelessWidget {
     required this.onStatusChanged,
   });
 
+  @override
+  State<PlayerAttendanceCard> createState() => _PlayerAttendanceCardState();
+}
+
+class _PlayerAttendanceCardState extends State<PlayerAttendanceCard> {
   Color _getStatusColor(String status) {
     switch (status) {
       case 'حاضر':
@@ -54,7 +59,7 @@ class PlayerAttendanceCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    playerName,
+                    widget.playerName,
                     style: GoogleFonts.balooThambi2(
                       textStyle: TextStyle(
                         fontWeight: FontWeight.bold,
@@ -65,7 +70,7 @@ class PlayerAttendanceCard extends StatelessWidget {
                   ),
                   SizedBox(height: context.setHeight(4)),
                   Text(
-                    'رقم القميص: $jerseyNumber',
+                    'رقم القميص: ${widget.jerseyNumber}',
                     style: GoogleFonts.balooThambi2(
                       textStyle: TextStyle(
                         color: Colors.grey,
@@ -73,6 +78,16 @@ class PlayerAttendanceCard extends StatelessWidget {
                       ),
                     ),
                   ),
+                  if (widget.selectedStatus.isEmpty)
+                    Text(
+                      'لم يتم اختيار الحالة بعد',
+                      style: GoogleFonts.balooThambi2(
+                        textStyle: TextStyle(
+                          color: Colors.orange,
+                          fontSize: context.setSp(12),
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -80,7 +95,7 @@ class PlayerAttendanceCard extends StatelessWidget {
             /// Status Buttons
             Row(
               children: ['حاضر', 'غائب', 'متأخر'].map((status) {
-                final isSelected = selectedStatus == status;
+                final isSelected = widget.selectedStatus == status;
 
                 return Padding(
                   padding: EdgeInsets.symmetric(
@@ -90,7 +105,7 @@ class PlayerAttendanceCard extends StatelessWidget {
                     width: context.setWidth(56),
                     height: context.setHeight(36),
                     child: ElevatedButton(
-                      onPressed: () => onStatusChanged(status),
+                      onPressed: () => widget.onStatusChanged(status),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: isSelected
                             ? _getStatusColor(status)

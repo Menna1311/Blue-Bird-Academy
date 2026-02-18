@@ -19,26 +19,26 @@ class HomeRepoImpl implements HomeRepo {
   HomeRepoImpl(
       this._firestoreService, this._authService, this._secureStorageService);
 
-  @override
-  Future<Result<SessionEntity>> getSession(
-      String trainerId, String teamId, String sessionId) {
-    return _firestoreService
-        .getSession(trainerId, teamId, sessionId)
-        .then((result) {
-      if (result is Success<SessionModel>) {
-        final SessionModel model = (result).data!;
-        final SessionEntity entity = model.toEntity();
-        return Success<SessionEntity>(entity);
-      }
+  // @override
+  // Future<Result<SessionEntity>> getSession(
+  //     String trainerId, String teamId, String sessionId) {
+  //   return _firestoreService
+  //       .getSession(trainerId, teamId, sessionId)
+  //       .then((result) {
+  //     if (result is Success<SessionModel>) {
+  //       final SessionModel model = (result).data!;
+  //       final SessionEntity entity = model.toEntity();
+  //       return Success<SessionEntity>(entity);
+  //     }
 
-      if (result is Fail) {
-        final error = (result as Fail).exception;
-        return Fail<SessionEntity>(error);
-      }
+  //     if (result is Fail) {
+  //       final error = (result as Fail).exception;
+  //       return Fail<SessionEntity>(error);
+  //     }
 
-      return Fail<SessionEntity>(Exception('Unknown error'));
-    });
-  }
+  //     return Fail<SessionEntity>(Exception('Unknown error'));
+  //   });
+  // }
 
   @override
   Future<Result<List<SessionEntity>>> getSessions(

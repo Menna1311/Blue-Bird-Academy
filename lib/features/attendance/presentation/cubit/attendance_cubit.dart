@@ -13,15 +13,15 @@ part 'attendance_state.dart';
 @injectable
 class AttendanceCubit extends Cubit<AttendanceState> {
   AttendanceCubit(this._attendanceRepo) : super(AttendanceInitial());
+
   final AttendanceRepo _attendanceRepo;
 
   UserEntity? currentUser;
-  Map<String, String> selectedStatuses = {};
 
-  // Get current logged in user
   Future<void> getLoggedInUser() async {
     emit(AttendanceUserLoading());
     final result = await _attendanceRepo.getLoggedInUser();
+
     switch (result) {
       case Success<UserEntity>():
         currentUser = result.data;
@@ -33,10 +33,11 @@ class AttendanceCubit extends Cubit<AttendanceState> {
     }
   }
 
-  // Get teams for the current user
   Future<void> getTeams(String trainerId) async {
     emit(AttendanceTeamsLoading());
+
     final result = await _attendanceRepo.getAllTeams(trainerId);
+
     if (result is Success<List<TeamModel>>) {
       emit(AttendanceTeamsLoaded(result.data!));
     } else if (result is Fail<List<TeamModel>>) {
@@ -44,57 +45,20 @@ class AttendanceCubit extends Cubit<AttendanceState> {
     }
   }
 
-  // ... rest of the existing methods remain the same
-  Future<void> initAttendance(
+  Future<void> markAttendance(
     String trainerId,
     String teamId,
-    List<PlayerEntity> players,
+    String sessionId,
+    List<AttendanceModel> attendanceList,
   ) async {
     emit(AttendanceLoading());
 
-    final result = await _attendanceRepo.isAttendanceMarkedToday(
+    final result = await _attendanceRepo.markAttendance(
       trainerId,
       teamId,
+      sessionId,
+      attendanceList,
     );
-
-    if (result is Success<bool> && result.data == true) {
-      emit(AttendanceAlreadyMarked());
-    } else {
-      selectedStatuses = {
-        for (final player in players) player.id: 'present',
-      };
-      emit(AttendanceReady());
-    }
-  }
-
-  void updateStatus(String playerId, String status) {
-    selectedStatuses[playerId] = status;
-    emit(AttendanceStatusChanged());
-  }
-
-  Future<void> checkAttendance(
-    String trainerId,
-    String teamId,
-  ) async {
-    emit(AttendanceLoading());
-
-    final result = await _attendanceRepo.isAttendanceMarkedToday(
-      trainerId,
-      teamId,
-    );
-
-    if (result is Success<bool> && result.data == true) {
-      emit(AttendanceAlreadyMarked());
-    } else {
-      emit(AttendanceInitial());
-    }
-  }
-
-  Future<void> markAttendance(String trainerId, String teamId,
-      List<AttendanceModel> attendanceList) async {
-    emit(AttendanceLoading());
-    final result =
-        await _attendanceRepo.markAttendance(trainerId, teamId, attendanceList);
 
     switch (result) {
       case Success<bool>():
@@ -108,16 +72,13 @@ class AttendanceCubit extends Cubit<AttendanceState> {
 
   Future<void> getHistory(String trainerId, String teamId) async {
     emit(AttendanceHistoryLoading());
-    try {
-      final data =
-          await _attendanceRepo.getAttendanceHistory(trainerId, teamId);
-      if (data is Success<List<AttendanceHistoryModel>>) {
-        emit(AttendanceHistoryLoaded(data.data!));
-      } else if (data is Fail<List<AttendanceHistoryModel>>) {
-        emit(AttendanceHistoryError(data.exception!.toString()));
-      }
-    } catch (e) {
-      emit(AttendanceHistoryError(e.toString()));
+
+    final data = await _attendanceRepo.getAttendanceHistory(trainerId, teamId);
+
+    if (data is Success<List<AttendanceHistoryModel>>) {
+      emit(AttendanceHistoryLoaded(data.data!));
+    } else if (data is Fail<List<AttendanceHistoryModel>>) {
+      emit(AttendanceHistoryError(data.exception!.toString()));
     }
   }
 }

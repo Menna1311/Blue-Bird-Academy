@@ -167,14 +167,23 @@ class _HomeView extends StatelessWidget {
                         },
                         child: Padding(
                           padding: const EdgeInsets.only(bottom: 12),
-                          child: TeamCard(
-                            teamName: team.teamName,
-                            teamAge: team.teamAgeCategory,
-                            numberOfPlayers: team.players.length,
-                            trainingDays: team.trainingDays,
-                            teamId: team.id,
-                            trainerId: user.id,
-                            players: team.players,
+                          child: Builder(
+                            builder: (context) {
+                              final cubit = context.read<HomeCubit>();
+                              final upcomingSession =
+                                  cubit.getUpcomingSession(team.id);
+
+                              return TeamCard(
+                                teamName: team.teamName,
+                                sessionId: upcomingSession?.id ?? '',
+                                teamAge: team.teamAgeCategory,
+                                numberOfPlayers: team.players.length,
+                                trainingDays: team.trainingDays,
+                                teamId: team.id,
+                                trainerId: user.id,
+                                players: team.players,
+                              );
+                            },
                           ),
                         ),
                       );

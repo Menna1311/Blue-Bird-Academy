@@ -197,7 +197,8 @@ class _Header extends StatelessWidget {
               ),
             ),
             IconButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => Navigator.pushNamedAndRemoveUntil(
+                  context, AppRoutes.mainLayout, (route) => false),
               icon: const Icon(Icons.close, color: Colors.white),
             ),
           ],

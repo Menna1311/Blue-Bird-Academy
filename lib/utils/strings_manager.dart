@@ -53,7 +53,8 @@ class StringsManager {
   static const String jerseyNumber = 'Jersey Number';
   static const String add = 'Add';
   static const String addPlayersTitle = 'Add Players';
-
+  static const String years = 'years';
+  static const String players = 'Players';
   // Age categories
   static const List<String> ageCategoriesKeys = [
     'age_under_6',
