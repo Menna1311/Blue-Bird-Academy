@@ -12,6 +12,7 @@ import 'package:blue_bird/features/intro/onboarding_screen/view/onboarding_scree
 import 'package:blue_bird/features/intro/splash_screen/view/splash_screen.dart';
 import 'package:blue_bird/features/mian_lay_out_screen/mian_lay_out_view/mian_lay_out_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:blue_bird/features/parent_home/presentation/views/parent_home_view.dart';
 
 Route manageRoutes(RouteSettings settings) {
   switch (settings.name) {
@@ -63,6 +64,11 @@ Route manageRoutes(RouteSettings settings) {
         builder: (context) => AttendanceScreen(
           arguments: settings.arguments as Map<String, dynamic>?,
         ),
+      );
+
+    case AppRoutes.parentHome:
+      return MaterialPageRoute(
+        builder: (context) => const ParentHomeView(),
       );
 
     // case AppRoutes.sessionScreen:

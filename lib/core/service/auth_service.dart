@@ -12,6 +12,7 @@ abstract class AuthService {
     required String email,
     required String password,
     required String displayName,
+    required String role,
   });
 
   Future<Result<UserEntity>> getLoggedInUser();

@@ -2,6 +2,7 @@ import 'package:blue_bird/core/common/result.dart';
 import 'package:blue_bird/core/service/auth_service.dart';
 import 'package:blue_bird/features/auth/login/data/models/user_model.dart';
 import 'package:blue_bird/features/auth/login/domain/entities/user_entity.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:injectable/injectable.dart';
 
@@ -25,12 +26,18 @@ class FirebaseAuthService implements AuthService {
         return Fail(Exception('No user found'));
       }
 
+      // Fetch role from Firestore
+      final firestore = FirebaseFirestore.instance;
+      final doc = await firestore.collection('users').doc(user.uid).get();
+      final role = doc.data()?['role'] ?? '';
+
       return Success(
         UserModel(
           id: user.uid,
           email: user.email,
           password: password,
           displayName: user.displayName,
+          role: role,
         ),
       );
     } on FirebaseAuthException catch (e) {
@@ -45,6 +52,7 @@ class FirebaseAuthService implements AuthService {
     required String email,
     required String password,
     required String displayName,
+    required String role,
   }) async {
     try {
       final userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
@@ -59,12 +67,23 @@ class FirebaseAuthService implements AuthService {
 
       await user.updateDisplayName(displayName);
 
+      // Store user profile in Firestore
+      final firestore = FirebaseFirestore.instance;
+      await firestore.collection('users').doc(user.uid).set({
+        'id': user.uid,
+        'email': email,
+        'displayName': displayName,
+        'role': role,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+
       return Success(
         UserModel(
           id: user.uid,
           email: user.email,
           password: password,
           displayName: displayName,
+          role: role,
         ),
       );
     } on FirebaseAuthException catch (e) {
@@ -83,10 +102,16 @@ class FirebaseAuthService implements AuthService {
         return Fail(Exception('No user found'));
       }
 
+      // Fetch role from Firestore
+      final firestore = FirebaseFirestore.instance;
+      final doc = await firestore.collection('users').doc(user.uid).get();
+      final role = doc.data()?['role'] ?? '';
+
       final model = UserModel(
         id: user.uid,
         email: user.email,
         displayName: user.displayName,
+        role: role,
       );
 
       return Success(model.toEntity());

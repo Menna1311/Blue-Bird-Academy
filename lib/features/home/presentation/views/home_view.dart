@@ -1,4 +1,5 @@
 import 'package:blue_bird/core/di/di.dart';
+import 'package:blue_bird/core/providers/user_provider.dart';
 import 'package:blue_bird/core/router/app_routes.dart';
 import 'package:blue_bird/core/week_days.dart';
 import 'package:blue_bird/features/add_team/domain/entities/team_entity.dart';
@@ -12,15 +13,15 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
+import 'package:provider/provider.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final cubit = getIt<HomeCubit>();
     return BlocProvider<HomeCubit>(
-      create: (_) => cubit..getCurrentUser(),
+      create: (_) => getIt<HomeCubit>()..getCurrentUser(),
       child: const _HomeView(),
     );
   }
@@ -117,13 +118,8 @@ class _HomeView extends StatelessWidget {
         children: [
           _buildHeader(context, user, teams.length),
           const SizedBox(height: 12),
-
-          // 🔥 DAY FILTER (ALWAYS VISIBLE)
           const WeekDaysFilter(),
-
           const SizedBox(height: 20),
-
-          // ✅ EMPTY STATE OR LIST
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: teams.isEmpty
@@ -198,7 +194,7 @@ class _HomeView extends StatelessWidget {
   // ================= HEADER =================
 
   Widget _buildHeader(BuildContext context, UserEntity user, int teamsCount) {
-    final cubit = getIt<HomeCubit>();
+    final cubit = context.read<HomeCubit>();
     return Stack(
       children: [
         // ===== BACKGROUND SHAPE =====
@@ -262,6 +258,8 @@ class _HomeView extends StatelessWidget {
                       borderRadius: BorderRadius.circular(30),
                       onTap: () {
                         cubit.logout();
+
+                        context.read<UserProvider>().logout();
                         Navigator.pushReplacementNamed(
                           context,
                           AppRoutes.splashScreen,

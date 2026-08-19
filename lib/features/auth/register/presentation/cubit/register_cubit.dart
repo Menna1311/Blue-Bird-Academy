@@ -16,14 +16,18 @@ class RegisterCubit extends Cubit<RegisterState> {
   String email = '';
   String password = '';
   String username = '';
+  String role = '';
+
   void updateEmail(String value) => email = value;
 
   void updatePassword(String value) => password = value;
 
   void updateUsername(String value) => username = value;
 
+  void updateRole(String value) => role = value;
+
   Future<void> submit() async {
-    if (email.isEmpty || password.isEmpty || username.isEmpty) {
+    if (email.isEmpty || password.isEmpty || username.isEmpty || role.isEmpty) {
       emit(RegisterFail("Please fill all fields"));
       return;
     }
@@ -31,7 +35,8 @@ class RegisterCubit extends Cubit<RegisterState> {
     emit(RegisterLoading());
     await Future.delayed(const Duration(seconds: 2));
 
-    final result = await _registerRepo.register(email, password, username);
+    final result =
+        await _registerRepo.register(email, password, username, role);
 
     switch (result) {
       case Success<UserEntity>():

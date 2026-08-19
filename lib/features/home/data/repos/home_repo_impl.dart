@@ -87,8 +87,8 @@ class HomeRepoImpl implements HomeRepo {
   }
 
   @override
-  Future<Result<void>> logout() {
-    _secureStorageService.deleteToken();
+  Future<Result<void>> logout() async {
+    await _secureStorageService.deleteToken();
     return _authService.logout();
   }
 }

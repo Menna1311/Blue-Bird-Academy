@@ -1,7 +1,6 @@
 import 'package:blue_bird/core/common/result.dart';
 import 'package:blue_bird/core/service/database_service.dart';
 import 'package:blue_bird/features/add_team/data/models/team_model.dart';
-import 'package:blue_bird/features/add_team/domain/entities/player_entity.dart';
 import 'package:blue_bird/features/attendance/data/models/attendance_history_model.dart';
 import 'package:blue_bird/features/attendance/data/models/attendance_model.dart';
 import 'package:blue_bird/features/home/data/models/session_model.dart';
@@ -19,12 +18,8 @@ class FirestoreService implements DatabaseService {
     required Map<String, dynamic> data,
   }) async {
     try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) return Fail(Exception('No authenticated user found'));
-
-      await firestore.collection(path).doc(user.uid).set({
+      await firestore.collection(path).add({
         ...data,
-        'uid': user.uid,
         'createdAt': FieldValue.serverTimestamp(),
       });
 
@@ -421,25 +416,32 @@ class FirestoreService implements DatabaseService {
           .doc(teamId)
           .collection('sessions')
           .where('attendanceMarked', isEqualTo: true)
-          .orderBy('attendanceTakenAt', descending: true)
           .get();
 
       final List<AttendanceHistoryModel> history = [];
 
       for (final session in sessionsSnap.docs) {
-        final Timestamp takenAt = session['attendanceTakenAt'];
-        final List players = session['attendance'];
+        final sessionData = session.data();
+        final Timestamp? takenAt = sessionData['attendanceTakenAt'] is Timestamp
+            ? sessionData['attendanceTakenAt'] as Timestamp
+            : null;
+        final dynamic attendance = sessionData['attendance'];
+        final List players = attendance is List ? attendance : [];
 
         for (final player in players) {
+          final playerData =
+              player is Map ? player.cast<String, dynamic>() : null;
           history.add(
             AttendanceHistoryModel(
-              takenAt: takenAt,
-              playerName: player['playerName'],
-              status: player['status'],
+              takenAt: takenAt ?? Timestamp.fromDate(DateTime.now()),
+              playerName: (playerData?['playerName'] as String?) ?? '',
+              status: (playerData?['status'] as String?) ?? 'غائب',
             ),
           );
         }
       }
+
+      history.sort((a, b) => b.takenAt.compareTo(a.takenAt));
 
       return Success(history);
     } catch (e) {

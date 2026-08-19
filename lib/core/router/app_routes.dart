@@ -11,4 +11,5 @@ class AppRoutes {
   static const String resetPassword = 'resetPassword';
   static const String history = 'history';
   static const String historyDetails = 'historyDetails';
+  static const String parentHome = 'parentHome';
 }

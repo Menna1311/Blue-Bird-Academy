@@ -37,7 +37,6 @@ import '../../features/auth/reset_password/presentation/cubit/reset_password_cub
 import '../../features/home/data/repos/home_repo_impl.dart' as _i647;
 import '../../features/home/domain/repos/home_repo.dart' as _i130;
 import '../../features/home/presentation/cubit/home_cubit.dart' as _i9;
-import '../providers/user_provider.dart' as _i26;
 import '../service/auth_service.dart' as _i850;
 import '../service/database_service.dart' as _i8;
 import '../service/firebase_auth_service.dart' as _i766;
@@ -55,7 +54,6 @@ extension GetItInjectableX on _i174.GetIt {
       environment,
       environmentFilter,
     );
-    gh.factory<_i26.UserProvider>(() => _i26.UserProvider());
     gh.singleton<_i142.SecureStorageService>(
         () => _i142.SecureStorageService());
     gh.lazySingleton<_i8.DatabaseService>(() => _i908.FirestoreService());

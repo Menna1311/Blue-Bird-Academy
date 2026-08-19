@@ -18,9 +18,9 @@ class RegisterRepoImpl implements RegisterRepo {
 
   @override
   Future<Result<UserEntity>> register(
-      String email, String password, String displayName) async {
+      String email, String password, String displayName, String role) async {
     final result = await _firebaseAuth.register(
-        email: email, password: password, displayName: displayName);
+        email: email, password: password, displayName: displayName, role: role);
 
     if (result is Success<UserModel>) {
       final entity = result.data!.toEntity();

@@ -32,12 +32,12 @@ class HomeCubit extends Cubit<HomeState> {
     final result = await _homeRepo.getLoggedInUser();
 
     switch (result) {
-      case Success<UserEntity>():
+      case Success():
         _currentUser = result.data;
         emit(UserLoaded(result.data!));
         break;
 
-      case Fail<UserEntity>():
+      case Fail():
         emit(UserError(result.exception!));
         break;
     }
