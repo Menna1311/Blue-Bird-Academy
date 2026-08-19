@@ -27,16 +27,18 @@ class LoginCubitCubit extends Cubit<LoginCubitState> {
   Future<void> checkUserToken() async {
     emit(LoginCubitLoading());
     final result = await _loginRepo.checkUserToken();
-    switch (result) {
-      case Success<bool>():
-        if (result.data == true) {
-          emit(TokenChecked());
-        } else {
-          emit(NoToken());
-        }
-      case Fail<bool>():
-        emit(LoginCubitError(result.exception!.toString()));
-        break;
+    UserEntity? user;
+
+    if (result is Success<bool> && result.data == true) {
+      final userResult = await _loginRepo.getLoggedInUser();
+      if (userResult is Success<UserEntity>) {
+        user = userResult.data;
+      }
+      emit(TokenChecked(user));
+    } else if (result is Fail<bool>) {
+      emit(LoginCubitError(result.exception!.toString()));
+    } else {
+      emit(NoToken());
     }
   }
 
@@ -50,12 +52,12 @@ class LoginCubitCubit extends Cubit<LoginCubitState> {
     await Future.delayed(const Duration(seconds: 2));
     final result = await _loginRepo.login(email, password);
     switch (result) {
-      case Success<UserEntity>():
+      case Success():
         final user = result.data!;
         emit(LoginCubitSuccess(user));
         await _loginRepo.setUserToken(user.id);
         break;
-      case Fail<UserEntity>():
+      case Fail():
         emit(LoginCubitError(result.exception!.toString()));
         break;
     }

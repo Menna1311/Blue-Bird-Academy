@@ -1,16 +1,18 @@
 import 'package:blue_bird/core/router/app_routes.dart';
 import 'package:blue_bird/core/router/route_not_found.dart';
 import 'package:blue_bird/features/add_team/presentation/views/add_team_view.dart';
+import 'package:blue_bird/features/attendance/presentation/views/attendance_history_details_screen.dart';
+import 'package:blue_bird/features/attendance/presentation/views/attendance_histoy_view.dart';
 import 'package:blue_bird/features/attendance/presentation/views/attendancea_view.dart';
 import 'package:blue_bird/features/auth/login/presentation/views/login_view.dart';
 import 'package:blue_bird/features/auth/register/presentation/views/register_view.dart';
 import 'package:blue_bird/features/auth/reset_password/presentation/views/reset_password_view.dart';
 import 'package:blue_bird/features/home/presentation/views/home_view.dart';
-import 'package:blue_bird/features/home/presentation/views/sessions_view.dart';
 import 'package:blue_bird/features/intro/onboarding_screen/view/onboarding_screen.dart';
 import 'package:blue_bird/features/intro/splash_screen/view/splash_screen.dart';
 import 'package:blue_bird/features/mian_lay_out_screen/mian_lay_out_view/mian_lay_out_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:blue_bird/features/parent_home/presentation/views/parent_home_view.dart';
 
 Route manageRoutes(RouteSettings settings) {
   switch (settings.name) {
@@ -38,6 +40,19 @@ Route manageRoutes(RouteSettings settings) {
       return MaterialPageRoute(
         builder: (context) => HomeScreen(),
       );
+
+    case AppRoutes.history:
+      return MaterialPageRoute(
+        builder: (context) => AttendanceHistoryTeamsScreen(),
+      );
+
+    case AppRoutes.historyDetails:
+      return MaterialPageRoute(
+        builder: (context) => AttendanceHistoryDetailsScreen(
+          arguments: settings.arguments as Map<String, dynamic>?,
+        ),
+      );
+
     case AppRoutes.addTeamScreen:
       return MaterialPageRoute(
         builder: (context) => AddTeamView(
@@ -51,14 +66,19 @@ Route manageRoutes(RouteSettings settings) {
         ),
       );
 
-    case AppRoutes.sessionScreen:
+    case AppRoutes.parentHome:
       return MaterialPageRoute(
-        builder: (context) {
-          return SessionsView(
-            arguments: settings.arguments as Map<String, dynamic>?,
-          );
-        },
+        builder: (context) => const ParentHomeView(),
       );
+
+    // case AppRoutes.sessionScreen:
+    //   return MaterialPageRoute(
+    //     builder: (context) {
+    //       return SessionsView(
+    //         arguments: settings.arguments as Map<String, dynamic>?,
+    //       );
+    //     },
+    //   );
 
     case AppRoutes.registerScreen:
       return MaterialPageRoute(builder: (context) => RegisterView());

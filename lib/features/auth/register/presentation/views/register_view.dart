@@ -44,7 +44,11 @@ class RegisterBlocConsumer extends StatelessWidget {
               ),
             ),
           );
-          Navigator.pushReplacementNamed(context, AppRoutes.mainLayout);
+          if (state.user.role.toLowerCase() == 'parent') {
+            Navigator.pushReplacementNamed(context, AppRoutes.parentHome);
+          } else {
+            Navigator.pushReplacementNamed(context, AppRoutes.mainLayout);
+          }
         }
       },
       builder: (context, state) {
@@ -143,6 +147,29 @@ class RegisterViewBody extends StatelessWidget {
                 CustomTextField(
                   hint: StringsManager.coachName.tr(),
                   onChange: cubit.updateUsername,
+                ),
+                SizedBox(height: context.setHeight(12)),
+                Row(
+                  children: [
+                    Expanded(
+                      child: RadioListTile<String>(
+                        title: const Text('Coach'),
+                        value: 'coach',
+                        groupValue: cubit.role,
+                        onChanged: (value) => cubit.updateRole(value ?? ''),
+                        activeColor: ColorManager.primary,
+                      ),
+                    ),
+                    Expanded(
+                      child: RadioListTile<String>(
+                        title: const Text('Parent'),
+                        value: 'parent',
+                        groupValue: cubit.role,
+                        onChanged: (value) => cubit.updateRole(value ?? ''),
+                        activeColor: ColorManager.primary,
+                      ),
+                    ),
+                  ],
                 ),
                 SizedBox(height: context.setHeight(20)),
                 SizedBox(

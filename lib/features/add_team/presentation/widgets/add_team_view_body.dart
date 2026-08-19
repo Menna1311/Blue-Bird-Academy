@@ -1,3 +1,4 @@
+import 'package:blue_bird/core/responsive_helper/size_helper_extensions.dart';
 import 'package:blue_bird/features/add_team/presentation/provider/add_team_form_provider.dart';
 import 'package:blue_bird/utils/color_manager.dart';
 import 'package:blue_bird/utils/strings_manager.dart';
@@ -20,6 +21,8 @@ class AddTeamViewBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = context.screenWidth;
+
     return ChangeNotifierProvider(
       create: (_) => AddTeamFormProvider(),
       child: Consumer<AddTeamFormProvider>(
@@ -43,7 +46,7 @@ class AddTeamViewBody extends StatelessWidget {
                 child: Column(
                   children: [
                     _buildHeader(context),
-                    const SizedBox(height: 20),
+                    SizedBox(height: context.setHeight(20)),
                     TeamComponent(
                       title: StringsManager.teamName.tr(),
                       widget: TextField(
@@ -53,24 +56,24 @@ class AddTeamViewBody extends StatelessWidget {
                           filled: true,
                           fillColor: const Color(0xffF8F9FD),
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(16),
                             borderSide: BorderSide.none,
                           ),
                         ),
-                        onChanged: (value) => provider.setTeamName(value),
+                        onChanged: provider.setTeamName,
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    SizedBox(height: context.setHeight(20)),
                     TeamComponent(
                       title: StringsManager.ageCategory.tr(),
-                      widget: AgeCategoryDropdown(),
+                      widget: const AgeCategoryDropdown(),
                     ),
-                    const SizedBox(height: 20),
+                    SizedBox(height: context.setHeight(20)),
                     TeamComponent(
                       title: StringsManager.trainingDays.tr(),
-                      widget: TrainingDaysSelector(),
+                      widget: const TrainingDaysSelector(),
                     ),
-                    const SizedBox(height: 20),
+                    SizedBox(height: context.setHeight(20)),
                     TeamComponent(
                       title: StringsManager.trainingTime.tr(),
                       widget: GestureDetector(
@@ -81,41 +84,64 @@ class AddTeamViewBody extends StatelessWidget {
                         },
                         child: Container(
                           width: double.infinity,
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 12, horizontal: 16),
+                          padding: EdgeInsets.symmetric(
+                              vertical: context.setHeight(14),
+                              horizontal: context.setWidth(16)),
                           decoration: BoxDecoration(
                             color: const Color(0xffF8F9FD),
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(16),
                           ),
-                          child: Text(provider.trainingTime != null
-                              ? '${provider.trainingTime!.hour.toString().padLeft(2, '0')}:${provider.trainingTime!.minute.toString().padLeft(2, '0')}'
-                              : StringsManager.selectTrainingTime.tr()),
+                          child: Text(
+                            provider.trainingTime != null
+                                ? '${provider.trainingTime!.hour.toString().padLeft(2, '0')}:${provider.trainingTime!.minute.toString().padLeft(2, '0')}'
+                                : StringsManager.selectTrainingTime.tr(),
+                            style: TextStyle(fontSize: context.setSp(14)),
+                          ),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    SizedBox(height: context.setHeight(20)),
                     TeamComponent(
                       title: StringsManager.addPlayers.tr(),
-                      widget: AddPlayersCard(),
+                      widget: const AddPlayersCard(),
                     ),
-                    const SizedBox(height: 30),
+                    SizedBox(height: context.setHeight(30)),
                     state is AddTeamLoading
                         ? const CircularProgressIndicator()
-                        : ElevatedButton(
-                            onPressed: () => _submitTeam(context, provider),
-                            style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 40, vertical: 16),
-                              backgroundColor: ColorManager.primary,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12)),
-                            ),
-                            child: Text(
-                              StringsManager.addTeam.tr(),
-                              style: AppTextStyles.font18W400White(context),
+                        : GestureDetector(
+                            onTap: () => _submitTeam(context, provider),
+                            child: Container(
+                              width: screenWidth * 0.8,
+                              padding: EdgeInsets.symmetric(
+                                  vertical: context.setHeight(16)),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(50),
+                                gradient: const LinearGradient(
+                                  colors: [
+                                    ColorManager.primary,
+                                    ColorManager.lightPrimary
+                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color:
+                                        ColorManager.primary.withOpacity(0.4),
+                                    blurRadius: 12,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: Center(
+                                child: Text(
+                                  StringsManager.addTeam.tr(),
+                                  style: AppTextStyles.font18W400White(context),
+                                ),
+                              ),
                             ),
                           ),
-                    const SizedBox(height: 30),
+                    SizedBox(height: context.setHeight(30)),
                   ],
                 ),
               );
@@ -145,7 +171,7 @@ class AddTeamViewBody extends StatelessWidget {
 
     final team = TeamModel(
       id: '',
-      trainerId: trainerId, // Use the passed trainer ID
+      trainerId: trainerId,
       teamName: provider.teamName,
       teamAgeCategory: provider.ageCategory!,
       trainingDays: provider.trainingDays,
@@ -160,9 +186,14 @@ class AddTeamViewBody extends StatelessWidget {
   Widget _buildHeader(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+      padding: EdgeInsets.symmetric(
+          horizontal: context.setWidth(20), vertical: context.setHeight(30)),
       decoration: const BoxDecoration(
-        color: ColorManager.primary,
+        gradient: LinearGradient(
+          colors: [ColorManager.primary, ColorManager.lightPrimary],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
         borderRadius: BorderRadius.only(
             bottomLeft: Radius.circular(40), bottomRight: Radius.circular(40)),
       ),
@@ -175,7 +206,7 @@ class AddTeamViewBody extends StatelessWidget {
               StringsManager.addNewTeam.tr(),
               style: TextStyle(
                   color: Colors.white,
-                  fontSize: 22,
+                  fontSize: context.setSp(22),
                   fontWeight: FontWeight.bold),
             ),
             IconButton(

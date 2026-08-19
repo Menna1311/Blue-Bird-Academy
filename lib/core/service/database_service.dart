@@ -9,10 +9,15 @@ abstract class DatabaseService {
       {required String path, required Map<String, dynamic> data});
   Future<Result<List<TeamModel>>> getTeams(String trainerId);
   Future<Result<bool>> addTeam(String trainerId, TeamModel team);
-  Future<Result<bool>> markAttendance(String trainerId, String teamId,
-      String sessionId, List<AttendanceModel> attendanceList);
-  Future<Result<SessionModel>> getSession(
-      String trainerId, String teamId, String sessionId);
+  Future<Result<bool>> markAttendance(
+    String trainerId,
+    String teamId,
+    String sessionId,
+    List<AttendanceModel> attendanceList,
+  );
+  Future<Result<bool>> isAttendanceMarkedToday(String trainerId, String teamId);
+  // Future<Result<SessionModel>> getSession(
+  //     String trainerId, String teamId, String sessionId);
   Future<Result<List<SessionModel>>> getSessions(
       String trainerId, String teamId);
   Future<Result<List<AttendanceHistoryModel>>> getAttendanceHistory(

@@ -20,6 +20,7 @@ class SVGAssets {
   static const String add = "${_basePath}people-team-add-24-regular.svg";
   static const String profile = "${_basePath}profile-bold.svg";
   static const String logout = "${_basePath}logout.svg";
+  static const String history = "${_basePath}history.svg";
   // static const String onBoarding1 = "${_basePath}onBoarding1.svg";
   // static const String onBoarding2 = "${_basePath}onBoarding2.svg";
   // static const String onBoarding3 = "${_basePath}onBoarding3.svg";
@@ -29,7 +30,7 @@ class LottieAssets {
   LottieAssets._();
 
   static const String _basePath = "assets/lotti/";
-
+  static const String done = "${_basePath}Done.json";
   static const String loading = "${_basePath}Footballer_loading.json";
   static const String error = "${_basePath}wrong.json";
   static const String comingSoon = "${_basePath}coming_soon.json";

@@ -46,4 +46,14 @@ class LoginRepoImpl extends LoginRepo {
       return Success(false);
     }
   }
+
+  @override
+  Future<Result<UserEntity>> getLoggedInUser() async {
+    final result = await _firebaseAuth.getLoggedInUser();
+    if (result is Success<UserEntity>) {
+      return Success(result.data!);
+    } else {
+      return Fail((result as Fail<UserEntity>).exception!);
+    }
+  }
 }

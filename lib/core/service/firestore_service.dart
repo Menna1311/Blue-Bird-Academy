@@ -1,7 +1,6 @@
 import 'package:blue_bird/core/common/result.dart';
 import 'package:blue_bird/core/service/database_service.dart';
 import 'package:blue_bird/features/add_team/data/models/team_model.dart';
-import 'package:blue_bird/features/add_team/domain/entities/player_entity.dart';
 import 'package:blue_bird/features/attendance/data/models/attendance_history_model.dart';
 import 'package:blue_bird/features/attendance/data/models/attendance_model.dart';
 import 'package:blue_bird/features/home/data/models/session_model.dart';
@@ -19,12 +18,8 @@ class FirestoreService implements DatabaseService {
     required Map<String, dynamic> data,
   }) async {
     try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) return Fail(Exception('No authenticated user found'));
-
-      await firestore.collection(path).doc(user.uid).set({
+      await firestore.collection(path).add({
         ...data,
-        'uid': user.uid,
         'createdAt': FieldValue.serverTimestamp(),
       });
 
@@ -60,21 +55,15 @@ class FirestoreService implements DatabaseService {
           .collection('teams')
           .doc();
 
-      // Save team without player IDs
+      // Add the team to Firestore
       await teamRef.set({
         ...team.toMap(),
         'id': teamRef.id,
         'createdAt': FieldValue.serverTimestamp(),
       });
 
-      // Generate sessions with player IDs
-      await _generateTeamSessions(
-        trainerId: trainerId,
-        teamId: teamRef.id,
-        trainingDays: team.trainingDays,
-        trainingTime: team.trainingTime,
-        players: team.players,
-      );
+      // Create sessions for the month
+      await _createSessionsForMonth(trainerId, teamRef.id, team);
 
       return Success(true);
     } on FirebaseException catch (e) {
@@ -84,61 +73,195 @@ class FirestoreService implements DatabaseService {
     }
   }
 
-  Future<void> _generateTeamSessions({
-    required String trainerId,
-    required String teamId,
-    required List<String> trainingDays,
-    required DateTime trainingTime,
-    required List<PlayerEntity> players,
-  }) async {
+  Future<void> _createSessionsForMonth(
+      String trainerId, String teamId, TeamModel team) async {
     final now = DateTime.now();
-    final sessionsCollection = FirebaseFirestore.instance
-        .collection('trainers')
-        .doc(trainerId)
-        .collection('teams')
-        .doc(teamId)
-        .collection('sessions');
+    final currentMonth = now.month;
+    final currentYear = now.year;
 
-    for (String day in trainingDays) {
-      final nextDate = _getNextDateForDay(day, now);
+    // Get the number of days in current month
+    final daysInMonth = DateTime(currentYear, currentMonth + 1, 0).day;
 
-      final sessionData = {
-        'day': day,
-        'date': Timestamp.fromDate(nextDate),
-        'time': trainingTime,
-        'status': "upcoming",
-        'players': players
-            .map((p) => {
-                  'id': FirebaseFirestore.instance
-                      .collection('dummy')
-                      .doc()
-                      .id, // unique ID per session
-                  'name': p.name,
-                  'jerseyNumber': p.jerseyNumber,
-                  'attendance': false, // default attendance
-                })
-            .toList(),
-        'createdAt': FieldValue.serverTimestamp(),
-      };
+    // Convert training days to DateTime weekdays (Monday = 1, Sunday = 7)
+    final trainingWeekdays = team.trainingDays.map((day) {
+      switch (day.toLowerCase()) {
+        case 'monday':
+          return 1;
+        case 'tuesday':
+          return 2;
+        case 'wednesday':
+          return 3;
+        case 'thursday':
+          return 4;
+        case 'friday':
+          return 5;
+        case 'saturday':
+          return 6;
+        case 'sunday':
+          return 7;
+        default:
+          return 1; // Default to Monday if unknown
+      }
+    }).toList();
 
-      await sessionsCollection.add(sessionData);
+    final batch = FirebaseFirestore.instance.batch();
+    int sessionCount = 0;
+
+    // Create sessions for each day of the month
+    for (int day = 1; day <= daysInMonth; day++) {
+      final date = DateTime(currentYear, currentMonth, day);
+      final weekday = date.weekday; // 1=Monday, 7=Sunday
+
+      // Check if this day is one of the training days
+      if (trainingWeekdays.contains(weekday)) {
+        // Create the session DateTime by combining date with training time
+        final sessionDateTime = DateTime(
+          date.year,
+          date.month,
+          date.day,
+          team.trainingTime.hour,
+          team.trainingTime.minute,
+        );
+
+        // Only create sessions for future dates (including today)
+        if (sessionDateTime.isAfter(now) || _isSameDay(sessionDateTime, now)) {
+          final sessionRef = FirebaseFirestore.instance
+              .collection('trainers')
+              .doc(trainerId)
+              .collection('teams')
+              .doc(teamId)
+              .collection('sessions')
+              .doc();
+
+          final sessionData = {
+            'id': sessionRef.id,
+            'teamId': teamId,
+            'trainerId': trainerId,
+            'sessionDateTime': sessionDateTime,
+            'teamName': team.teamName,
+            'teamAgeCategory': team.teamAgeCategory,
+            'status': 'scheduled',
+            'attendance': [],
+            'attendanceMarked': false,
+            'attendanceTakenAt': null,
+            'notes': '',
+            'createdAt': FieldValue.serverTimestamp(),
+            'updatedAt': FieldValue.serverTimestamp(),
+          };
+
+          batch.set(sessionRef, sessionData);
+          sessionCount++;
+
+          // Firestore batch has a limit of 500 operations
+          if (sessionCount >= 450) {
+            await batch.commit();
+            sessionCount = 0;
+          }
+        }
+      }
+    }
+
+    // Commit any remaining operations
+    if (sessionCount > 0) {
+      await batch.commit();
     }
   }
 
-  DateTime _getNextDateForDay(String weekday, DateTime fromDate) {
-    const weekdaysMap = {
-      'Monday': 1,
-      'Tuesday': 2,
-      'Wednesday': 3,
-      'Thursday': 4,
-      'Friday': 5,
-      'Saturday': 6,
-      'Sunday': 7,
-    };
-    int targetWeekday = weekdaysMap[weekday] ?? 1;
-    int daysAhead = (targetWeekday - fromDate.weekday + 7) % 7;
-    if (daysAhead == 0) daysAhead = 7;
-    return fromDate.add(Duration(days: daysAhead));
+  bool _isSameDay(DateTime date1, DateTime date2) {
+    return date1.year == date2.year &&
+        date1.month == date2.month &&
+        date1.day == date2.day;
+  }
+
+// If you need to create sessions for multiple months, you can use this extended version:
+  Future<void> _createSessionsForMultipleMonths(
+      String trainerId, String teamId, TeamModel team,
+      {int monthsAhead = 3}) async {
+    final now = DateTime.now();
+
+    // Convert training days to DateTime weekdays
+    final trainingWeekdays = team.trainingDays.map((day) {
+      switch (day.toLowerCase()) {
+        case 'monday':
+          return 1;
+        case 'tuesday':
+          return 2;
+        case 'wednesday':
+          return 3;
+        case 'thursday':
+          return 4;
+        case 'friday':
+          return 5;
+        case 'saturday':
+          return 6;
+        case 'sunday':
+          return 7;
+        default:
+          return 1;
+      }
+    }).toList();
+
+    final batch = FirebaseFirestore.instance.batch();
+    int sessionCount = 0;
+
+    // Create sessions for multiple months ahead
+    for (int monthOffset = 0; monthOffset < monthsAhead; monthOffset++) {
+      final targetMonth = DateTime(now.year, now.month + monthOffset, 1);
+      final daysInMonth =
+          DateTime(targetMonth.year, targetMonth.month + 1, 0).day;
+
+      for (int day = 1; day <= daysInMonth; day++) {
+        final date = DateTime(targetMonth.year, targetMonth.month, day);
+        final weekday = date.weekday;
+
+        if (trainingWeekdays.contains(weekday)) {
+          final sessionDateTime = DateTime(
+            date.year,
+            date.month,
+            date.day,
+            team.trainingTime.hour,
+            team.trainingTime.minute,
+          );
+
+          // Only create future sessions
+          if (sessionDateTime.isAfter(now)) {
+            final sessionRef = FirebaseFirestore.instance
+                .collection('trainers')
+                .doc(trainerId)
+                .collection('teams')
+                .doc(teamId)
+                .collection('sessions')
+                .doc();
+
+            final sessionData = {
+              'id': sessionRef.id,
+              'teamId': teamId,
+              'trainerId': trainerId,
+              'sessionDateTime': sessionDateTime,
+              'teamName': team.teamName,
+              'teamAgeCategory': team.teamAgeCategory,
+              'status': 'scheduled',
+              'attendance': [],
+              'notes': '',
+              'createdAt': FieldValue.serverTimestamp(),
+              'updatedAt': FieldValue.serverTimestamp(),
+            };
+
+            batch.set(sessionRef, sessionData);
+            sessionCount++;
+
+            if (sessionCount >= 450) {
+              await batch.commit();
+              sessionCount = 0;
+            }
+          }
+        }
+      }
+    }
+
+    if (sessionCount > 0) {
+      await batch.commit();
+    }
   }
 
   @override
@@ -148,49 +271,186 @@ class FirestoreService implements DatabaseService {
     String sessionId,
     List<AttendanceModel> attendanceList,
   ) async {
-    final attendanceCollection = firestore
+    final sessionRef = firestore
         .collection('trainers')
         .doc(trainerId)
         .collection('teams')
         .doc(teamId)
         .collection('sessions')
-        .doc(sessionId)
-        .collection('attendance_records');
+        .doc(sessionId);
 
-    final attendanceData = attendanceList.map((a) => a.toMap()).toList();
+    try {
+      await firestore.runTransaction((transaction) async {
+        final sessionSnapshot = await transaction.get(sessionRef);
 
-    await attendanceCollection.add({
-      'players': attendanceData,
-      'takenAt': FieldValue.serverTimestamp(),
-    });
+        if (!sessionSnapshot.exists) {
+          throw Exception('Session not found');
+        }
 
-    return Success(true);
+        final data = sessionSnapshot.data() ?? {};
+
+        if (data['attendanceMarked'] == true) {
+          throw Exception('Attendance already marked for this session');
+        }
+
+        final attendanceData = attendanceList.map((a) => a.toMap()).toList();
+
+        transaction.update(sessionRef, {
+          'attendance': attendanceData,
+          'attendanceMarked': true,
+          'attendanceTakenAt': FieldValue.serverTimestamp(),
+          'status': 'completed',
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+      });
+
+      return Success(true);
+    } catch (e) {
+      return Fail(Exception(e.toString()));
+    }
   }
 
   @override
-  Future<Result<SessionModel>> getSession(
-      String trainerId, String teamId, String sessionId) async {
+  Future<Result<bool>> isAttendanceMarkedToday(
+    String trainerId,
+    String teamId,
+  ) async {
     try {
-      final docSnapshot = await firestore
+      final doc = await firestore
+          .collection('trainers')
+          .doc(trainerId)
+          .collection('teams')
+          .doc(teamId)
+          .get();
+
+      final data = doc.data();
+      if (data == null) return Success(false);
+
+      final bool marked = data['attendanceMarked'] ?? false;
+      final Timestamp? savedDay = data['attendanceDay'];
+
+      final today = startOfDay(DateTime.now());
+
+      if (!marked || savedDay == null) {
+        return Success(false);
+      }
+
+      if (!savedDay.toDate().isAtSameMomentAs(today)) {
+        /// 🔁 AUTO RESET
+        await doc.reference.update({
+          'attendanceMarked': false,
+        });
+        return Success(false);
+      }
+
+      return Success(true);
+    } catch (e) {
+      return Fail(Exception(e.toString()));
+    }
+  }
+
+  @override
+  // Future<Result<SessionModel>> getSession(
+  //     String trainerId, String teamId, String sessionId) async {
+  //   try {
+  //     final docSnapshot = await firestore
+  //         .collection('trainers')
+  //         .doc(trainerId)
+  //         .collection('teams')
+  //         .doc(teamId)
+  //         .collection('sessions')
+  //         .doc(sessionId)
+  //         .get();
+
+  //     if (!docSnapshot.exists || docSnapshot.data() == null) {
+  //       return Fail(Exception('Session not found'));
+  //     }
+  //     final session = SessionModel.fromFirestore(
+  //         docSnapshot.data() as Map<String, dynamic>, docSnapshot.id);
+  //     return Success(session);
+  //   } on FirebaseException catch (e) {
+  //     return Fail(e);
+  //   } catch (e) {
+  //     return Fail(Exception(e.toString()));
+  //   }
+  // }
+
+  // @override
+  // Future<Result<List<SessionModel>>> getSessions(
+  //     String trainerId, String teamId) async {
+  //   try {
+  //     final snapshot = await firestore
+  //         .collection('trainers')
+  //         .doc(trainerId)
+  //         .collection('teams')
+  //         .doc(teamId)
+  //         .collection('sessions')
+  //         .orderBy('date')
+  //         .get();
+
+  //     final sessions = snapshot.docs
+  //         .map((doc) => SessionModel.fromFirestore(
+  //               doc.data(),
+  //               doc.id,
+  //             ))
+  //         .toList();
+
+  //     return Success(sessions);
+  //   } on FirebaseException catch (e) {
+  //     return Fail(Exception('Failed to load sessions: ${e.message}'));
+  //   } catch (e) {
+  //     return Fail(Exception('Unexpected error: $e'));
+  //   }
+  // }
+
+  @override
+  Future<Result<List<AttendanceHistoryModel>>> getAttendanceHistory(
+    String trainerId,
+    String teamId,
+  ) async {
+    try {
+      final sessionsSnap = await firestore
           .collection('trainers')
           .doc(trainerId)
           .collection('teams')
           .doc(teamId)
           .collection('sessions')
-          .doc(sessionId)
+          .where('attendanceMarked', isEqualTo: true)
           .get();
 
-      if (!docSnapshot.exists || docSnapshot.data() == null) {
-        return Fail(Exception('Session not found'));
+      final List<AttendanceHistoryModel> history = [];
+
+      for (final session in sessionsSnap.docs) {
+        final sessionData = session.data();
+        final Timestamp? takenAt = sessionData['attendanceTakenAt'] is Timestamp
+            ? sessionData['attendanceTakenAt'] as Timestamp
+            : null;
+        final dynamic attendance = sessionData['attendance'];
+        final List players = attendance is List ? attendance : [];
+
+        for (final player in players) {
+          final playerData =
+              player is Map ? player.cast<String, dynamic>() : null;
+          history.add(
+            AttendanceHistoryModel(
+              takenAt: takenAt ?? Timestamp.fromDate(DateTime.now()),
+              playerName: (playerData?['playerName'] as String?) ?? '',
+              status: (playerData?['status'] as String?) ?? 'غائب',
+            ),
+          );
+        }
       }
-      final session = SessionModel.fromFirestore(
-          docSnapshot.data() as Map<String, dynamic>, docSnapshot.id);
-      return Success(session);
-    } on FirebaseException catch (e) {
-      return Fail(e);
+
+      history.sort((a, b) => b.takenAt.compareTo(a.takenAt));
+
+      return Success(history);
     } catch (e) {
       return Fail(Exception(e.toString()));
     }
+  }
+
+  DateTime startOfDay(DateTime date) {
+    return DateTime(date.year, date.month, date.day);
   }
 
   @override
@@ -203,63 +463,17 @@ class FirestoreService implements DatabaseService {
           .collection('teams')
           .doc(teamId)
           .collection('sessions')
-          .orderBy('date')
+          .orderBy('sessionDateTime')
           .get();
 
       final sessions = snapshot.docs
-          .map((doc) => SessionModel.fromFirestore(
+          .map((doc) => SessionModel.fromMap(
                 doc.data(),
                 doc.id,
               ))
           .toList();
 
       return Success(sessions);
-    } on FirebaseException catch (e) {
-      return Fail(Exception('Failed to load sessions: ${e.message}'));
-    } catch (e) {
-      return Fail(Exception('Unexpected error: $e'));
-    }
-  }
-
-  @override
-  Future<Result<List<AttendanceHistoryModel>>> getAttendanceHistory(
-    String trainerId,
-    String teamId,
-  ) async {
-    try {
-      final sessions = await firestore
-          .collection('trainers')
-          .doc(trainerId)
-          .collection('teams')
-          .doc(teamId)
-          .collection('sessions')
-          .get();
-
-      List<AttendanceHistoryModel> history = [];
-
-      for (var session in sessions.docs) {
-        final recordsSnap = await session.reference
-            .collection('attendance_records')
-            .orderBy('takenAt', descending: true)
-            .get();
-
-        for (var record in recordsSnap.docs) {
-          final takenAt = record['takenAt'] as Timestamp;
-          final playersList = record['players'] as List<dynamic>;
-
-          for (var playerData in playersList) {
-            history.add(
-              AttendanceHistoryModel(
-                takenAt: takenAt,
-                playerName: playerData['playerName'],
-                status: playerData['status'],
-              ),
-            );
-          }
-        }
-      }
-
-      return Success(history);
     } catch (e) {
       return Fail(Exception(e.toString()));
     }

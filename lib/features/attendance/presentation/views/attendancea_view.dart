@@ -1,18 +1,18 @@
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
 import 'package:blue_bird/features/add_team/domain/entities/player_entity.dart';
 import 'package:blue_bird/features/attendance/data/models/attendance_model.dart';
 import 'package:blue_bird/features/attendance/presentation/cubit/attendance_cubit.dart';
 import 'package:blue_bird/features/attendance/presentation/widgets/player_attendance_card.dart';
 import 'package:blue_bird/utils/color_manager.dart';
-import 'package:blue_bird/utils/strings_manager.dart';
 import 'package:blue_bird/utils/values_manager.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
 
 class AttendanceUiState extends ChangeNotifier {
-  List<String?> selectedStatus;
+  final List<String?> selectedStatus;
 
   AttendanceUiState(int playerCount)
       : selectedStatus = List.generate(playerCount, (_) => null);
@@ -39,9 +39,8 @@ class AttendanceScreen extends StatelessWidget {
         teamId == null ||
         sessionId == null ||
         players == null) {
-      return Scaffold(
-        appBar: AppBar(title: const Text("Attendance")),
-        body: const Center(child: Text("Missing parameters")),
+      return const Scaffold(
+        body: Center(child: Text("Missing parameters")),
       );
     }
 
@@ -69,14 +68,14 @@ class AttendanceScreen extends StatelessWidget {
 class AttendanceViewBody extends StatelessWidget {
   final String trainerId;
   final String teamId;
-  final String sessionId;
   final List<PlayerEntity> players;
+  final String sessionId;
 
   const AttendanceViewBody({
     super.key,
     required this.trainerId,
-    required this.teamId,
     required this.sessionId,
+    required this.teamId,
     required this.players,
   });
 
@@ -97,7 +96,7 @@ class AttendanceViewBody extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              StringsManager.attendance.tr(),
+              'Attendance'.tr(),
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 22,
@@ -116,15 +115,16 @@ class AttendanceViewBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cubit = context.read<AttendanceCubit>();
     final uiState = context.watch<AttendanceUiState>();
+    final cubit = context.read<AttendanceCubit>();
 
     return BlocConsumer<AttendanceCubit, AttendanceState>(
       listener: (context, state) {
         if (state is AttendanceSuccess) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-                content: Text(StringsManager.attendancesavedSuccessfully.tr())),
+            const SnackBar(
+              content: Text("Attendance saved successfully"),
+            ),
           );
         } else if (state is AttendanceError) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -137,76 +137,66 @@ class AttendanceViewBody extends StatelessWidget {
           children: [
             _buildHeader(context),
             Expanded(
-              child: Container(
-                color: Colors.grey.shade50,
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: ListView.builder(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: AppPadding.p8,
-                        ),
-                        itemCount: players.length,
-                        itemBuilder: (context, index) {
-                          final player = players[index];
+              child: ListView.builder(
+                padding: const EdgeInsets.symmetric(
+                  vertical: AppPadding.p12,
+                ),
+                itemCount: players.length,
+                itemBuilder: (context, index) {
+                  final player = players[index];
 
-                          return PlayerAttendanceCard(
-                            playerName: player.name,
-                            jerseyNumber: player.jerseyNumber,
-                            selectedStatus: uiState.selectedStatus[index] ?? '',
-                            onStatusChanged: (status) {
-                              uiState.updateStatus(index, status);
-                            },
+                  return PlayerAttendanceCard(
+                    key: ValueKey(player.id), // safe
+                    playerName: player.name,
+                    jerseyNumber: player.jerseyNumber,
+                    selectedStatus: uiState.selectedStatus[index] ?? '',
+                    onStatusChanged: (status) {
+                      uiState.updateStatus(index, status);
+                    },
+                  );
+                },
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.all(AppPadding.p16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 4,
+                    offset: const Offset(0, -2),
+                  ),
+                ],
+              ),
+              child: SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: state is AttendanceLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : ElevatedButton(
+                        onPressed: () {
+                          final attendanceList =
+                              players.asMap().entries.map((entry) {
+                            final index = entry.key;
+                            final player = entry.value;
+
+                            return AttendanceModel(
+                              playerId: player.id,
+                              playerName: player.name,
+                              status: uiState.selectedStatus[index] ?? 'غائب',
+                            );
+                          }).toList();
+
+                          cubit.markAttendance(
+                            trainerId,
+                            teamId,
+                            sessionId,
+                            attendanceList,
                           );
                         },
+                        child: Text("Save Attendance".tr()),
                       ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: AppPadding.p16,
-                        horizontal: AppPadding.p16,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            blurRadius: AppSize.s4,
-                            offset: const Offset(0, -AppSize.s2),
-                          ),
-                        ],
-                      ),
-                      child: SizedBox(
-                        width: double.infinity,
-                        child: state is AttendanceLoading
-                            ? const CircularProgressIndicator()
-                            : ElevatedButton(
-                                onPressed: () {
-                                  final attendanceList =
-                                      players.asMap().entries.map((entry) {
-                                    final index = entry.key;
-                                    final player = entry.value;
-                                    return AttendanceModel(
-                                      playerId: player.id,
-                                      playerName: player.name,
-                                      status: uiState.selectedStatus[index] ??
-                                          'غائب',
-                                    );
-                                  }).toList();
-
-                                  cubit.markAttendance(
-                                    trainerId,
-                                    teamId,
-                                    sessionId,
-                                    attendanceList,
-                                  );
-                                },
-                                child: Text(StringsManager.saveAttendance.tr()),
-                              ),
-                      ),
-                    )
-                  ],
-                ),
               ),
             ),
           ],

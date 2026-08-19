@@ -4,7 +4,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:blue_bird/utils/color_manager.dart';
-import 'package:blue_bird/utils/text_styles.dart';
 import 'package:blue_bird/utils/values_manager.dart';
 
 class SessionCard extends StatelessWidget {

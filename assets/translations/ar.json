@@ -68,5 +68,18 @@
   "Mark Attendance": "تسجيل الحضور",
   "View Attendance History": "عرض سجل الحضور",
   "Forgot Password?": "هل نسيت كلمة المرور؟",
-  "coach name": "اسم المدرب"
+  "coach name": "اسم المدرب",
+  "There is no teams yet": "لا توجد فرق بعد",
+    "Monitor player commitment across all sessions. Clear records help you lead your team with confidence.": "راقب التزام اللاعبين عبر جميع الحصص. تساعدك السجلات الواضحة على قيادة فريقك بثقة.",
+"Every Session\nMatters": "كل حصة\nمهمة",
+  "Mark player attendance in seconds. Stay organized, save time, and focus on coaching.": "قم بتسجيل حضور اللاعبين في ثوانٍ. حافظ على التنظيم، وفر الوقت، وركز على التدريب.",
+  "Attendance Made\nSimple": "الحضور أصبح\nبسيطًا",
+  "Consistent attendance creates strong teams. Track presence, build commitment, and shape future champions.": "الحضور المنتظم يخلق فرقًا قوية. تتبع الحضور، وابنِ الالتزام، وشكل أبطال المستقبل.",
+  "Discipline Builds\nChampions": "الانضباط يبني\nالأبطال",
+    "We’ve sent you a link to reset your password.": "لقد أرسلنا لك رابطًا لإعادة تعيين كلمة المرور الخاصة بك.",
+  "Check your email": "تحقق من بريدك الإلكتروني",
+  "Enter your email": "أدخل بريدك الإلكتروني",
+  "Enter your email to receive a reset link": "أدخل بريدك الإلكتروني لتلقي رابط إعادة التعيين",
+  "Send Reset Link": "إرسال رابط إعادة التعيين",
+  "Reset Password": "إعادة تعيين كلمة المرور"
 }

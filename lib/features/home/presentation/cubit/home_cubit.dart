@@ -16,50 +16,34 @@ class HomeCubit extends Cubit<HomeState> {
   HomeCubit(this._homeRepo) : super(HomeInitial());
   final HomeRepo _homeRepo;
 
-  // Add user property
   UserEntity? _currentUser;
   UserEntity? get currentUser => _currentUser;
+
   List<TeamEntity> _allTeams = [];
   WeekDay? _selectedDay;
-  // Add method to get current user
+
+  final Map<String, List<SessionEntity>> _teamSessions = {};
+
+  // ================= USER =================
+
   Future<void> getCurrentUser() async {
     emit(UserLoading());
+
     final result = await _homeRepo.getLoggedInUser();
+
     switch (result) {
-      case Success<UserEntity>():
+      case Success():
         _currentUser = result.data;
         emit(UserLoaded(result.data!));
         break;
-      case Fail<UserEntity>():
+
+      case Fail():
         emit(UserError(result.exception!));
         break;
     }
   }
 
-  Future<void> getSession(
-      String trainerId, String teamId, String sessionId) async {
-    emit(SessionLoading());
-    final result = await _homeRepo.getSession(trainerId, teamId, sessionId);
-    switch (result) {
-      case Success<SessionEntity>():
-        emit(SessionLoaded(result.data!));
-        break;
-      case Fail<SessionEntity>():
-        emit(SessionError(result.exception!));
-        break;
-    }
-  }
-
-  Future<void> getSessions(String trainerId, String teamId) async {
-    emit(SessionLoading());
-    final result = await _homeRepo.getSessions(trainerId, teamId);
-
-    if (result is Success<List<SessionEntity>>) {
-      emit(SessionsLoaded(result.data!));
-    } else if (result is Fail<List<SessionEntity>>) {
-      emit(SessionError(result.exception!));
-    }
-  }
+  // ================= TEAMS =================
 
   Future<void> getTeams(String trainerId) async {
     emit(TeamsLoading());
@@ -69,7 +53,11 @@ class HomeCubit extends Cubit<HomeState> {
     if (result is Success<List<TeamEntity>>) {
       _allTeams = result.data!;
 
-      // 🔥 Auto select TODAY
+      // 🔥 Load sessions for each team
+      for (final team in _allTeams) {
+        await _loadTeamSessions(trainerId, team.id);
+      }
+
       _selectedDay = WeekDayX.fromDateTime(DateTime.now());
 
       emit(
@@ -81,6 +69,32 @@ class HomeCubit extends Cubit<HomeState> {
       );
     } else if (result is Fail<List<TeamEntity>>) {
       emit(TeamsError(result.exception!));
+    }
+  }
+
+  Future<void> _loadTeamSessions(String trainerId, String teamId) async {
+    final result = await _homeRepo.getSessions(trainerId, teamId);
+
+    if (result is Success<List<SessionEntity>>) {
+      _teamSessions[teamId] = result.data!;
+    }
+  }
+
+  // ================= GET UPCOMING =================
+
+  SessionEntity? getUpcomingSession(String teamId) {
+    final sessions = _teamSessions[teamId];
+
+    if (sessions == null || sessions.isEmpty) return null;
+
+    final now = DateTime.now();
+
+    try {
+      return sessions.firstWhere(
+        (s) => s.status == 'scheduled' && s.date.isAfter(now),
+      );
+    } catch (_) {
+      return null;
     }
   }
 
@@ -104,33 +118,9 @@ class HomeCubit extends Cubit<HomeState> {
         .toList();
   }
 
-  String _getTodayName() {
-    switch (DateTime.now().weekday) {
-      case DateTime.monday:
-        return 'Monday';
-      case DateTime.tuesday:
-        return 'Tuesday';
-      case DateTime.wednesday:
-        return 'Wednesday';
-      case DateTime.thursday:
-        return 'Thursday';
-      case DateTime.friday:
-        return 'Friday';
-      case DateTime.saturday:
-        return 'Saturday';
-      case DateTime.sunday:
-        return 'Sunday';
-      default:
-        return 'Monday';
-    }
-  }
+  // ================= LOGOUT =================
 
   Future<void> logout() async {
-    final result = await _homeRepo.logout();
-    if (result is Success<void>) {
-      // Handle successful logout if needed
-    } else if (result is Fail<void>) {
-      // Handle logout error if needed
-    }
+    await _homeRepo.logout();
   }
 }

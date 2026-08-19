@@ -1,6 +1,7 @@
 // login_view.dart
 
 import 'package:blue_bird/core/di/di.dart';
+import 'package:blue_bird/core/providers/user_provider.dart';
 import 'package:blue_bird/core/responsive_helper/size_helper_extensions.dart';
 import 'package:blue_bird/core/router/app_routes.dart';
 import 'package:blue_bird/features/auth/login/presentation/cubit/login_cubit_cubit.dart';
@@ -12,6 +13,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
+import 'package:provider/provider.dart';
 
 class LoginView extends StatelessWidget {
   LoginView({super.key});
@@ -40,8 +42,15 @@ class LoginBlocConsumer extends StatelessWidget {
     return BlocConsumer<LoginCubitCubit, LoginCubitState>(
       listener: (context, state) {
         if (state is TokenChecked) {
-          Navigator.pushReplacementNamed(context, AppRoutes.mainLayout);
+          if (state.user == null) return;
+          context.read<UserProvider>().setUser(state.user!);
+          if (state.user!.role.toLowerCase() == 'parent') {
+            Navigator.pushReplacementNamed(context, AppRoutes.parentHome);
+          } else {
+            Navigator.pushReplacementNamed(context, AppRoutes.mainLayout);
+          }
         } else if (state is LoginCubitSuccess) {
+          context.read<UserProvider>().setUser(state.user);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
@@ -50,7 +59,11 @@ class LoginBlocConsumer extends StatelessWidget {
               ),
             ),
           );
-          Navigator.pushReplacementNamed(context, AppRoutes.mainLayout);
+          if (state.user.role.toLowerCase() == 'parent') {
+            Navigator.pushReplacementNamed(context, AppRoutes.parentHome);
+          } else {
+            Navigator.pushReplacementNamed(context, AppRoutes.mainLayout);
+          }
         } else if (state is LoginCubitError) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -63,7 +76,7 @@ class LoginBlocConsumer extends StatelessWidget {
         }
       },
       builder: (context, state) {
-        if (state is LoginCubitLoading || state is LoginCubitInitial) {
+        if (state is LoginCubitLoading) {
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -83,10 +96,8 @@ class LoginBlocConsumer extends StatelessWidget {
               ],
             ),
           );
-        } else if (state is NoToken || state is LoginCubitError) {
-          return const LoginViewBody();
         }
-        return const SizedBox.shrink();
+        return const LoginViewBody();
       },
     );
   }

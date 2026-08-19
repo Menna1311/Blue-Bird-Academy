@@ -26,7 +26,11 @@ class StringsManager {
   static const String tryAgain = "Try again";
   static const String somethingWentWrong = "Something went wrong";
   static const String profile = "Profile";
-
+  static const String present = "Present";
+  static const String absent = "Absent";
+  static const String late = "Late";
+  static const String unknown = "Unknown";
+  static const String noTeamsYet = "No Teams Yet";
   // Sessions strings
   static const String sessions = "Sessions";
   static const String noSessionsYet = "No sessions yet";
@@ -49,7 +53,8 @@ class StringsManager {
   static const String jerseyNumber = 'Jersey Number';
   static const String add = 'Add';
   static const String addPlayersTitle = 'Add Players';
-
+  static const String years = 'years';
+  static const String players = 'Players';
   // Age categories
   static const List<String> ageCategoriesKeys = [
     'age_under_6',

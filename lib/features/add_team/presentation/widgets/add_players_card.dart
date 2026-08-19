@@ -1,11 +1,11 @@
+import 'package:blue_bird/core/responsive_helper/size_helper_extensions.dart';
+import 'package:blue_bird/features/add_team/presentation/provider/add_team_form_provider.dart';
 import 'package:blue_bird/utils/color_manager.dart';
 import 'package:blue_bird/utils/strings_manager.dart';
-import 'package:blue_bird/utils/text_styles.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../domain/entities/player_entity.dart';
-import '../provider/add_team_form_provider.dart';
 
 class AddPlayersCard extends StatefulWidget {
   const AddPlayersCard({super.key});
@@ -49,12 +49,14 @@ class _AddPlayersCardState extends State<AddPlayersCard> {
             children: [
               Icon(Icons.group_outlined, color: ColorManager.primary),
               const SizedBox(width: 8),
-              Text("${StringsManager.addPlayersTitle.tr()} (${players.length})",
-                  style: const TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 16)),
+              Text(
+                "${StringsManager.addPlayersTitle.tr()} (${players.length})",
+                style: TextStyle(
+                    fontWeight: FontWeight.bold, fontSize: context.setSp(16)),
+              ),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: context.setHeight(12)),
           Row(
             children: [
               Expanded(
@@ -66,13 +68,13 @@ class _AddPlayersCardState extends State<AddPlayersCard> {
                     filled: true,
                     fillColor: Colors.grey[100],
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(16),
                       borderSide: BorderSide.none,
                     ),
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: context.setWidth(8)),
               Expanded(
                 flex: 1,
                 child: TextField(
@@ -83,54 +85,87 @@ class _AddPlayersCardState extends State<AddPlayersCard> {
                     filled: true,
                     fillColor: Colors.grey[100],
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(16),
                       borderSide: BorderSide.none,
                     ),
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
-              ElevatedButton.icon(
-                onPressed: addPlayer,
-                icon: Icon(Icons.add, size: 18, color: ColorManager.white),
-                label: Text(
-                  StringsManager.add.tr(),
-                  style: AppTextStyles.font18W400White(context),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: ColorManager.primary,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8)),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+              SizedBox(width: context.setWidth(8)),
+              GestureDetector(
+                onTap: addPlayer,
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                      horizontal: context.setWidth(12),
+                      vertical: context.setHeight(14)),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    gradient: const LinearGradient(colors: [
+                      ColorManager.primary,
+                      ColorManager.lightPrimary
+                    ], begin: Alignment.topLeft, end: Alignment.bottomRight),
+                    boxShadow: [
+                      BoxShadow(
+                        color: ColorManager.primary.withOpacity(0.4),
+                        blurRadius: 8,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.add, size: 18, color: Colors.white),
+                      SizedBox(width: context.setWidth(6)),
+                      Text(StringsManager.add.tr(),
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: context.setSp(14))),
+                    ],
+                  ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: context.setHeight(16)),
           ...players.asMap().entries.map((entry) {
             final index = entry.key;
             final player = entry.value;
             return Container(
-              margin: const EdgeInsets.only(bottom: 8),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              margin: EdgeInsets.only(bottom: context.setHeight(8)),
+              padding: EdgeInsets.symmetric(
+                  horizontal: context.setWidth(12),
+                  vertical: context.setHeight(10)),
               decoration: BoxDecoration(
-                color: Colors.grey[100],
-                borderRadius: BorderRadius.circular(8),
+                gradient: const LinearGradient(
+                  colors: [ColorManager.primary, ColorManager.lightPrimary],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: ColorManager.primary.withOpacity(0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   IconButton(
                     onPressed: () => removePlayer(index),
-                    icon: const Icon(Icons.close, color: Colors.red),
+                    icon: const Icon(Icons.close, color: Colors.white),
                   ),
-                  Text(player.name, style: const TextStyle(fontSize: 16)),
+                  Text(player.name,
+                      style: TextStyle(
+                          fontSize: context.setSp(16), color: Colors.white)),
                   CircleAvatar(
                     radius: 14,
-                    backgroundColor: ColorManager.primary.withOpacity(0.2),
+                    backgroundColor: Colors.white.withOpacity(0.2),
                     child: Text(player.jerseyNumber,
-                        style: TextStyle(color: ColorManager.primary)),
+                        style: TextStyle(
+                            color: Colors.white, fontSize: context.setSp(14))),
                   ),
                 ],
               ),
